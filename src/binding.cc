@@ -2,6 +2,10 @@
 #include <nan.h>
 #include <node_buffer.h>
 
+#define XXH_STATIC_LINKING_ONLY
+#define XXH_INLINE_ALL
+#include <xxhash.h>
+
 namespace XXHash {
 	using namespace node;
 
@@ -17,7 +21,7 @@ namespace XXHash {
 	static const char table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
 	void Base64FWithoutPadding(const char* src, unsigned n, char* dst) {
-		
+
 	}
 
 	MaybeLocal<String> Base64F(Isolate* isolate, const char* src, size_t slen) {
@@ -45,7 +49,7 @@ namespace XXHash {
 			i += 3;
 			k += 4;
 		}
-		
+
 		switch (slen - n) {
 		case 1:
 			a = src[i + 0] & 0xff;
@@ -71,7 +75,7 @@ namespace XXHash {
 	}
 
 	void JSBase64F(const FunctionCallbackInfo<Value>& args) {
-		Isolate* isolate = args.GetIsolate();
+		auto isolate = args.GetIsolate();
 		auto input = args[0];
 
 		if (input->IsString()) {
@@ -79,7 +83,14 @@ namespace XXHash {
 			auto src = new char[slen];
 			Nan::DecodeWrite(src, slen, input, Nan::UTF8);
 
-			args.GetReturnValue().Set(Base64F(isolate, src, slen).ToLocalChecked());
+			XXH128_canonical_t canonical_sum;
+			auto hash = XXH3_128bits(src, slen);
+			XXH128_canonicalFromHash(&canonical_sum, hash);
+
+			auto st = Nan::Encode(canonical_sum.digest, sizeof(canonical_sum), Nan::HEX);
+			//auto st = Base64F(isolate, (char*)canonical_sum.digest, sizeof(canonical_sum));
+
+			args.GetReturnValue().Set(st);
 			delete[] src;
 		}
 		else if (Buffer::HasInstance(input)) {
