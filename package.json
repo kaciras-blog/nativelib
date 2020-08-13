@@ -1,0 +1,20 @@
+{
+	"name": "xxhash-native",
+	"version": "1.0.0",
+	"description": "",
+	"license": "ISC",
+	"author": "",
+	"main": "index.js",
+	"scripts": {
+		"build": "node-gyp build",
+		"test": "jest"
+	},
+	"keywords": [],
+	"dependencies": {
+		"nan": "^2.14.1"
+	},
+	"devDependencies": {
+		"jest": "^26.4.0",
+		"typescript": "^3.9.7"
+	}
+}
