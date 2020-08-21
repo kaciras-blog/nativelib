@@ -15,6 +15,7 @@
 	},
 	"devDependencies": {
 		"jest": "^26.4.0",
+		"murmurhash-native": "^3.5.0",
 		"typescript": "^3.9.7"
 	}
 }

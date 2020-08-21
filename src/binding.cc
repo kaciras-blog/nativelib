@@ -87,8 +87,8 @@ namespace XXHash {
 			auto hash = XXH3_128bits(src, slen);
 			XXH128_canonicalFromHash(&canonical_sum, hash);
 
-			auto st = Nan::Encode(canonical_sum.digest, sizeof(canonical_sum), Nan::HEX);
-			//auto st = Base64F(isolate, (char*)canonical_sum.digest, sizeof(canonical_sum));
+//			auto st = Nan::Encode(canonical_sum.digest, sizeof(canonical_sum), Nan::HEX);
+			auto st = Base64F(isolate, (char*)canonical_sum.digest, sizeof(canonical_sum)).ToLocalChecked();
 
 			args.GetReturnValue().Set(st);
 			delete[] src;
@@ -97,8 +97,13 @@ namespace XXHash {
 			auto slen = Buffer::Length(input);
 			auto src = Buffer::Data(input);
 
-			args.GetReturnValue().Set(Base64F(isolate, src, slen).ToLocalChecked());
-			delete[] src;
+			XXH128_canonical_t canonical_sum;
+			auto hash = XXH3_128bits(src, slen);
+			XXH128_canonicalFromHash(&canonical_sum, hash);
+
+			auto st = Base64F(isolate, (char*)canonical_sum.digest, sizeof(canonical_sum)).ToLocalChecked();
+
+			args.GetReturnValue().Set(st);
 		}
 		else {
 			Nan::ThrowTypeError("data must be string or buffer");
