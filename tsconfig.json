@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"lib": ["ESNext"],
+
+		"newLine": "LF",
+		"esModuleInterop": true,
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"strict": true,
+		"removeComments": true,
+
+		"experimentalDecorators": true
+	}
+}

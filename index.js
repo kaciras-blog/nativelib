@@ -1,5 +1,9 @@
 const binding = require("./build/Debug/binding");
 
-console.log(binding.base64F("xxhash"));
-console.log(binding.base64F(Buffer.from("xxhash")));
-// 9c8b437c78cac00a376072e24bfdf4d2
+// console.log(binding.xxHash3_128("xxhash", "base64"));
+// console.log(binding.xxHash3_128("xxhash", "base64-u"));
+//
+// console.log(binding.xxHash3_128("xxhash", "hex"));
+// console.log(binding.xxHash3_128(Buffer.from("xxhash"), "hex"));
+
+module.exports = binding;
