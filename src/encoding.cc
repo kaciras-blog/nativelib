@@ -5,7 +5,7 @@ namespace XXHash {
 
 	static const char table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-	Local<String> Base64F(const char* src, size_t slen) {
+	Local<String> UrlSafeBase64(const char* src, size_t slen) {
 		unsigned dlen = (slen + 2) / 3 * 4;
 		auto dst = new char[dlen];
 
@@ -55,7 +55,7 @@ namespace XXHash {
 		return result.ToLocalChecked();
 	}
 
-	InputData ConvertInput(const Local<Value>& input) {
+	InputData ParseInput(const Local<Value> input) {
 		InputData data;
 
 		if (Buffer::HasInstance(input)) {
@@ -79,10 +79,14 @@ namespace XXHash {
 		return data;
 	}
 
+	bool InputData::isInvalid() {
+		return Buffer == NULL;
+	}
+
 	/*
 	 * "hex" | "base64" | "base64-u";
 	 */
-	Local<Value> ConvertOutput(const char* digest, size_t size, const Local<String>& outType) {
+	Local<Value> EncodeOutput(const char* digest, size_t size, Local<String> outType) {
 		Local<Value> result;
 		auto length = outType->Length();
 
@@ -97,7 +101,7 @@ namespace XXHash {
 		}
 
 		if (strcmp(type, "base64-u") == 0) {
-			result = Base64F(digest, size);
+			result = UrlSafeBase64(digest, size);
 		}
 		else if (strcmp(type, "base64") == 0) {
 			result = Nan::Encode(digest, size, Nan::BASE64);

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <node.h>
 #include <nan.h>
 #include <node_buffer.h>
@@ -19,9 +20,11 @@ namespace XXHash {
 		char* Buffer;
 		size_t Length;
 		bool IsOwned;
+
+		bool isInvalid();
 	};
 
-	InputData ConvertInput(const Local<Value>& input);
+	InputData ParseInput(Local<Value> input);
 
-	Local<Value> ConvertOutput(const char* digest, size_t size, const Local<String>& outType);
+	Local<Value> EncodeOutput(const char* digest, size_t size, Local<String> outType);
 }
