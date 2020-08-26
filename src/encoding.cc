@@ -1,4 +1,4 @@
-#include <sstream>
+ï»¿#include <sstream>
 #include <encoding.h>
 
 namespace XXHash {
@@ -58,6 +58,7 @@ namespace XXHash {
 	InputData ParseInput(const Local<Value> input) {
 		InputData data;
 
+		// Buffer::Data è¿”å›åº•å±‚æ•°æ®ï¼Œæ— å¤åˆ¶ï¼Œæ‰€ä»¥ç”¨å®Œä¹Ÿä¸è¦åˆ 
 		if (Buffer::HasInstance(input)) {
 			data.Length = Buffer::Length(input);
 			data.Buffer = Buffer::Data(input);
@@ -84,14 +85,14 @@ namespace XXHash {
 	}
 
 	/*
-	 * "hex" | "base64" | "base64-u";
+	 * "latin1" | "hex" | "base64" | "base64u";
 	 */
-	Local<Value> EncodeOutput(const char* digest, size_t size, Local<String> outType) {
+	Local<Value> EncodeDigest(const char* digest, size_t size, Local<String> outType) {
 		Local<Value> result;
 		auto length = outType->Length();
 
-		// ÕâÊÇËùÓĞÖ§³ÖµÄÑ¡ÏîÀï×î³¤µÄ£¬±ÈÕâ¸ö¸ü³¤¿Ï¶¨ÊÇ´íÎó
-		auto type = new char[sizeof("base64-u")];
+		// è¿™æ˜¯æ‰€æœ‰æ”¯æŒçš„é€‰é¡¹é‡Œæœ€é•¿çš„ï¼Œæ¯”è¿™ä¸ªæ›´é•¿è‚¯å®šæ˜¯é”™è¯¯
+		auto type = new char[sizeof("base64u")];
 
 		if (length > sizeof(type)) {
 			type[0] = 0;
@@ -100,7 +101,7 @@ namespace XXHash {
 			type[Nan::DecodeWrite(type, length, outType)] = 0;
 		}
 
-		if (strcmp(type, "base64-u") == 0) {
+		if (strcmp(type, "base64u") == 0) {
 			result = UrlSafeBase64(digest, size);
 		}
 		else if (strcmp(type, "base64") == 0) {
@@ -108,6 +109,9 @@ namespace XXHash {
 		}
 		else if (strcmp(type, "hex") == 0) {
 			result = Nan::Encode(digest, size, Nan::HEX);
+		}
+		else if (strcmp(type, "latin1") == 0) {
+			result = Nan::Encode(digest, size, Nan::BINARY);
 		}
 		else {
 			std::stringstream ss;

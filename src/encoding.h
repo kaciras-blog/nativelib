@@ -26,5 +26,5 @@ namespace XXHash {
 
 	InputData ParseInput(Local<Value> input);
 
-	Local<Value> EncodeOutput(const char* digest, size_t size, Local<String> outType);
+	Local<Value> EncodeDigest(const char* digest, size_t size, Local<String> outType);
 }

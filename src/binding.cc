@@ -1,4 +1,4 @@
-#include <encoding.h>
+ï»¿#include <encoding.h>
 
 #include <sstream>
 #include <node_api.h>
@@ -13,45 +13,47 @@
 namespace XXHash {
 	using v8::ObjectTemplate;
 	using v8::FunctionTemplate;
-	using v8::Context;
+	using v8::Number;
 	using v8::Function;
+	using v8::Context;
 
+	// å¸¦ç§å­çš„Hashä¸€å…±æœ‰12ä¸ªå‡½æ•°ï¼Œä¸å¸¦çš„ä¹Ÿæœ‰9ä¸ªï¼Œè¦ç”¨æ¨¡æ¿è¿™å‚æ•°ä¹Ÿå¤ªå¤šäº†å§
 	class XXHash3_128Object {
 
 	public:
 
-		static void Init(Local<Object> exports) {
+		static void Init(Local<Object> exports, const char* cName, const char* sName, const char* qName) {
 			auto isolate = exports->GetIsolate();
 			auto context = isolate->GetCurrentContext();
 			auto handle_scope(isolate);
 
-			// ¸ã¸ö¶ÔÏóÀ´±£´æ¹¹Ôì·½·¨£¬Ïàµ±ÓÚ±Õ°üÉÏÏÂÎÄ£¿
+			// æä¸ªå¯¹è±¡æ¥ä¿å­˜æ„é€ æ–¹æ³•ï¼Œç›¸å½“äºé—­åŒ…ä¸Šä¸‹æ–‡ï¼Ÿ
 			auto objectTpl = ObjectTemplate::New(isolate);
 			objectTpl->SetInternalFieldCount(1);
 			auto closure = objectTpl->NewInstance(context).ToLocalChecked();
 
-			// ¶¨ÒåÒ»¸öÀà£¨Ò²ÊÇº¯Êı£©£¬Ê¹ÓÃ¿Õº¯ÊıÌå
+			// å®šä¹‰ä¸€ä¸ªç±»ï¼ˆä¹Ÿæ˜¯å‡½æ•°ï¼‰ï¼Œä½¿ç”¨ç©ºå‡½æ•°ä½“
 			auto clazz = FunctionTemplate::New(isolate);
-			auto name = String::NewFromUtf8(isolate, "XXH3_128", NewStringType::kInternalized).ToLocalChecked();
+			auto name = String::NewFromUtf8(isolate, cName, NewStringType::kInternalized).ToLocalChecked();
 			clazz->SetClassName(name);
 			clazz->InstanceTemplate()->SetInternalFieldCount(1);
 
-			// ÔÚÕâ¸öÀàµÄÔ­ĞÍÉÏ¶¨Òå¼¸¸ö·½·¨
+			// åœ¨è¿™ä¸ªç±»çš„åŸå‹ä¸Šå®šä¹‰å‡ ä¸ªæ–¹æ³•
 			NODE_SET_PROTOTYPE_METHOD(clazz, "copy", Copy);
 			NODE_SET_PROTOTYPE_METHOD(clazz, "update", Update);
 			NODE_SET_PROTOTYPE_METHOD(clazz, "digest", Digest);
 
-			// °ÑÀàµÄ¹¹Ôìº¯Êı¼ÓÈë±Õ°ü
+			// æŠŠç±»çš„æ„é€ å‡½æ•°åŠ å…¥é—­åŒ…
 			closure->SetInternalField(0, clazz->GetFunction(context).ToLocalChecked());
 
-			// ¶¨Òå createXXH3_128() º¯Êı²¢µ¼³ö
+			// å®šä¹‰ createXXH3_128() å‡½æ•°å¹¶å¯¼å‡º
 			auto createHash = FunctionTemplate::New(isolate, New, closure);
-			name = String::NewFromUtf8(isolate, "createXXH3_128", NewStringType::kInternalized).ToLocalChecked();
+			name = String::NewFromUtf8(isolate, sName, NewStringType::kInternalized).ToLocalChecked();
 			createHash->SetClassName(name);
 			exports->Set(context, name, createHash->GetFunction(context).ToLocalChecked()).Check();
 
-			// ÔÙµ¼³öÒ»¸ö¿ì½İ Hash µÄº¯Êı
-			NODE_SET_METHOD(exports, "xxHash3_128", DirectHash);
+			// å†å¯¼å‡ºä¸€ä¸ªå¿«æ· Hash çš„å‡½æ•°
+			NODE_SET_METHOD(exports, qName, QuickHash);
 		}
 
 	private:
@@ -68,7 +70,29 @@ namespace XXHash {
 
 			auto data = new XXHash3_128Object();
 			data->state = XXH3_createState();
-			XXH3_128bits_reset(data->state);
+
+			if (args.Length() == 0) {
+				XXH3_128bits_reset(data->state);
+			}
+			else if (args[0]->IsNumber()) {
+				auto seed = args[0]->Uint32Value(context).FromJust();
+				XXH3_128bits_reset_withSeed(data->state, seed);
+			}
+			else if (Buffer::HasInstance(args[0])) {
+				auto len = Buffer::Length(args[0]);
+				auto buffer = Buffer::Data(args[0]);
+
+				if (len < XXH3_SECRET_SIZE_MIN) {
+					std::ostringstream message;
+					message << "secret must be at least " << XXH3_SECRET_SIZE_MIN << " bytes";
+					return Nan::ThrowError(message.str().c_str());
+				}
+				
+				XXH3_128bits_reset_withSecret(data->state, buffer, len);
+			}
+			else {
+				return Nan::ThrowTypeError("argument must be number or Buffer");
+			}
 
 			auto instance = constructor->NewInstance(context).ToLocalChecked();
 			instance->SetAlignedPointerInInternalField(0, data);
@@ -82,16 +106,15 @@ namespace XXHash {
 			auto data = static_cast<XXHash3_128Object*>(field);
 
 			auto dataCopy = new XXHash3_128Object();
-			*dataCopy->state = *data->state;
+			XXH3_copyState(dataCopy->state, data->state);
 
-			
-			
+			// TODO
 			auto function = args.Data().As<Object>()->GetInternalField(0).As<Function>();
 			auto instance = function->NewInstance(context).ToLocalChecked();
 
 			auto field2 = instance->GetAlignedPointerFromInternalField(0);
 			auto t2 = static_cast<XXHash3_128Object*>(field2);
-			
+
 			args.GetReturnValue().Set(instance);
 		}
 
@@ -130,16 +153,16 @@ namespace XXHash {
 			SetDigestOutput(canonical_sum, args, 0);
 		}
 
-		static void DirectHash(const FunctionCallbackInfo<Value>& args) {
+		static void QuickHash(const FunctionCallbackInfo<Value>& args) {
 			if (args.Length() == 0) {
-				return Nan::ThrowError("Argument required");
+				return Nan::ThrowError("data required");
 			}
 
 			auto isolate = args.GetIsolate();
 			auto inputData = ParseInput(args[0]);
 
 			if (inputData.Buffer == NULL) {
-				return; // ÊäÈë²ÎÊıÓĞ´íÎó
+				return; // è¾“å…¥å‚æ•°æœ‰é”™è¯¯
 			}
 
 			auto hash = XXH3_128bits(inputData.Buffer, inputData.Length);
@@ -153,23 +176,27 @@ namespace XXHash {
 			SetDigestOutput(canonical_sum, args, 1);
 		}
 
+		void InitHashState() {
+
+		}
+
 		static void SetDigestOutput(
 			XXH128_canonical_t sum,
 			const FunctionCallbackInfo<Value>& args,
 			int i
-		){
+		) {
 			Local<Value> rv;
 
 			if (args.Length() == i) {
 				rv = Buffer::New(args.GetIsolate(), sizeof(sum)).ToLocalChecked();
 				*reinterpret_cast<XXH128_canonical_t*>(node::Buffer::Data(rv)) = sum;
 			}
-			else if (args[0]->IsString()) {
+			else if (args[i]->IsString()) {
 				auto output = reinterpret_cast<char*>(sum.digest);
-				rv = EncodeOutput(output, sizeof(sum), args[0].As<String>());
+				rv = EncodeDigest(output, sizeof(sum), args[i].As<String>());
 			}
 			else {
-				 return Nan::ThrowTypeError("encoding argument must be an string");
+				return Nan::ThrowTypeError("encoding argument must be an string");
 			}
 
 			args.GetReturnValue().Set(rv);
@@ -177,7 +204,7 @@ namespace XXHash {
 	};
 
 	void Initialize(Local<Object> exports) {
-		XXHash3_128Object::Init(exports);
+		XXHash3_128Object::Init(exports, "XXHash3_128", "createXXH3_128", "xxHash3_128");
 	}
 
 	NODE_MODULE(NODE_GYP_MODULE_NAME, Initialize);

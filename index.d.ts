@@ -1,6 +1,6 @@
 export type XXHashInputData = string | Buffer;
 
-export type XXHashOutputEncoding = "hex" | "base64" | "base64-u";
+export type XXHashOutputEncoding = "latin1" | "hex" | "base64" | "base64u";
 
 export interface XXHash {
 
