@@ -1,5 +1,4 @@
-﻿#include <sstream>
-#include <encoding.h>
+﻿#include <encoding.h>
 
 namespace XXHash {
 
@@ -74,7 +73,6 @@ namespace XXHash {
 			data.IsOwned = false;
 			data.Length = 0;
 			data.Buffer = NULL;
-			Nan::ThrowTypeError("data must be string or buffer");
 		}
 
 		return data;
@@ -94,7 +92,8 @@ namespace XXHash {
 		// 这是所有支持的选项里最长的，比这个更长肯定是错误
 		auto type = new char[sizeof("base64u")];
 
-		if (length > sizeof(type)) {
+		// 注意 sizeof("xxx") 包含了字符串末尾的0
+		if (length >= sizeof(type)) {
 			type[0] = 0;
 		}
 		else {
@@ -114,9 +113,8 @@ namespace XXHash {
 			result = Nan::Encode(digest, size, Nan::BINARY);
 		}
 		else {
-			std::stringstream ss;
-			ss << "Unknown output encoding: " << type;
-			Nan::ThrowError(ss.str().c_str());
+			// TODO: 把参数值也带上？
+			Nan::ThrowError("Unsupported output encoding");
 		}
 
 		delete[] type;
