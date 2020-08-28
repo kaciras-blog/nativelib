@@ -1,14 +1,11 @@
 ﻿#include <encoding.h>
+#include <xxhash_class.h>
 
 #include <sstream>
 #include <node_api.h>
 #include <node.h>
 #include <nan.h>
 #include <node_buffer.h>
-
-#define XXH_STATIC_LINKING_ONLY
-#define XXH_INLINE_ALL
-#include <xxhash.h>
 
 namespace XXHash {
 	using v8::ObjectTemplate;
@@ -18,13 +15,15 @@ namespace XXHash {
 	using v8::Context;
 
 	// 带种子的Hash一共有12个函数，不带的也有9个，要用模板这参数也太多了吧
-	class XXHash3_128Object {
-
+	template<typename XXHashClass, typename HashSumType>
+	class XXHashTemplate {
 	public:
 
 		static void Init(Local<Object> exports, const char* cName, const char* sName, const char* qName) {
 			auto isolate = exports->GetIsolate();
 			auto context = isolate->GetCurrentContext();
+
+			// 这一句创建了一个新堆栈，用于垃圾回收
 			auto handle_scope(isolate);
 
 			// 搞个对象来保存构造方法，相当于闭包上下文？
@@ -58,28 +57,21 @@ namespace XXHash {
 
 	private:
 
-		XXH3_state_t* state;
-
-		~XXHash3_128Object() {
-			XXH3_freeState(state);
-		}
-
 		static void New(const FunctionCallbackInfo<Value>& args) {
 			auto context = args.GetIsolate()->GetCurrentContext();
 			auto constructor = args.Data().As<Object>()->GetInternalField(0).As<Function>();
 
-			auto data = new XXHash3_128Object();
-			data->state = XXH3_createState();
+			XXHashClass* state;
 
 			if (args.Length() == 0) {
-				XXH3_128bits_reset(data->state);
+				state = new XXHashClass();
 			}
 			else if (args[0]->IsNumber()) {
-				auto seed = args[0]->Uint32Value(context).FromJust();
-				XXH3_128bits_reset_withSeed(data->state, seed);
+				/*auto seed = args[0]->Uint32Value(context).FromJust();
+				XXH3_128bits_reset_withSeed(data->state, seed);*/
 			}
 			else if (Buffer::HasInstance(args[0])) {
-				auto len = Buffer::Length(args[0]);
+				/*auto len = Buffer::Length(args[0]);
 				auto buffer = Buffer::Data(args[0]);
 
 				if (len < XXH3_SECRET_SIZE_MIN) {
@@ -87,15 +79,15 @@ namespace XXHash {
 					message << "secret must be at least " << XXH3_SECRET_SIZE_MIN << " bytes";
 					return Nan::ThrowError(message.str().c_str());
 				}
-				
-				XXH3_128bits_reset_withSecret(data->state, buffer, len);
+
+				XXH3_128bits_reset_withSecret(data->state, buffer, len);*/
 			}
 			else {
 				return Nan::ThrowTypeError("argument must be number or Buffer");
 			}
 
 			auto instance = constructor->NewInstance(context).ToLocalChecked();
-			instance->SetAlignedPointerInInternalField(0, data);
+			instance->SetAlignedPointerInInternalField(0, state);
 			args.GetReturnValue().Set(instance);
 		}
 
@@ -103,17 +95,16 @@ namespace XXHash {
 			auto context = args.GetIsolate()->GetCurrentContext();
 
 			auto field = args.This()->GetAlignedPointerFromInternalField(0);
-			auto data = static_cast<XXHash3_128Object*>(field);
+			auto data = static_cast<XXHashTemplate*>(field);
 
-			auto dataCopy = new XXHash3_128Object();
-			XXH3_copyState(dataCopy->state, data->state);
+			auto dataCopy = new XXHashTemplate();
 
 			// TODO
 			auto function = args.Data().As<Object>()->GetInternalField(0).As<Function>();
 			auto instance = function->NewInstance(context).ToLocalChecked();
 
 			auto field2 = instance->GetAlignedPointerFromInternalField(0);
-			auto t2 = static_cast<XXHash3_128Object*>(field2);
+			auto t2 = static_cast<XXHashTemplate*>(field2);
 
 			args.GetReturnValue().Set(instance);
 		}
@@ -123,17 +114,14 @@ namespace XXHash {
 				return Nan::ThrowError("Argument required");
 			}
 
-			auto isolate = args.GetIsolate();
-
 			auto inputData = ParseInput(args[0]);
 			if (inputData.isInvalid()) {
-				return;
+				return Nan::ThrowTypeError("data must be string or buffer");
 			}
 
 			auto field = args.This()->GetAlignedPointerFromInternalField(0);
-			auto thisArg = static_cast<XXHash3_128Object*>(field);
-
-			XXH3_128bits_update(thisArg->state, inputData.Buffer, inputData.Length);
+			auto state = static_cast<XXHashClass*>(field);
+			state->update(inputData.Buffer, inputData.Length);
 
 			if (inputData.IsOwned) {
 				delete[] inputData.Buffer;
@@ -144,13 +132,9 @@ namespace XXHash {
 
 		static void Digest(const FunctionCallbackInfo<Value>& args) {
 			auto field = args.This()->GetAlignedPointerFromInternalField(0);
-			auto thisArg = static_cast<XXHash3_128Object*>(field);
+			auto state = static_cast<XXHashClass*>(field);
 
-			auto hash = XXH3_128bits_digest(thisArg->state);
-			XXH128_canonical_t canonical_sum;
-			XXH128_canonicalFromHash(&canonical_sum, hash);
-
-			SetDigestOutput(canonical_sum, args, 0);
+			SetDigestOutput(state->digest(), args, 0);
 		}
 
 		static void QuickHash(const FunctionCallbackInfo<Value>& args) {
@@ -162,26 +146,20 @@ namespace XXHash {
 			auto inputData = ParseInput(args[0]);
 
 			if (inputData.Buffer == NULL) {
-				return; // 输入参数有错误
+				return Nan::ThrowTypeError("data must be string or buffer");
 			}
 
-			auto hash = XXH3_128bits(inputData.Buffer, inputData.Length);
-			XXH128_canonical_t canonical_sum;
-			XXH128_canonicalFromHash(&canonical_sum, hash);
+			auto sum = XXHashClass::digest(inputData.Buffer, inputData.Length);
 
 			if (inputData.IsOwned) {
 				delete[] inputData.Buffer;
 			}
 
-			SetDigestOutput(canonical_sum, args, 1);
-		}
-
-		void InitHashState() {
-
+			SetDigestOutput(sum, args, 1);
 		}
 
 		static void SetDigestOutput(
-			XXH128_canonical_t sum,
+			HashSumType sum,
 			const FunctionCallbackInfo<Value>& args,
 			int i
 		) {
@@ -204,7 +182,7 @@ namespace XXHash {
 	};
 
 	void Initialize(Local<Object> exports) {
-		XXHash3_128Object::Init(exports, "XXHash3_128", "createXXH3_128", "xxHash3_128");
+		XXHashTemplate<XXHash3_128Wrapper, XXH128_canonical_t>::Init(exports, "XXHash3_128", "createXXH3_128", "xxHash3_128");
 	}
 
 	NODE_MODULE(NODE_GYP_MODULE_NAME, Initialize);
