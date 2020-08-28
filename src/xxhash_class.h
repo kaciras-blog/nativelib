@@ -4,6 +4,8 @@
 #define XXH_INLINE_ALL
 #include <xxhash.h>
 
+// 把 xxHash 的函数封装成类，避免跟 v8 相关的代码混在一起。
+// 另一个原因是 xxHash 每个变体都有至少9个相关的函数，全写进模板太长了难看，用类封装下就只用写两个。
 namespace XXHash {
 
 	class XXHash32Wrapper {

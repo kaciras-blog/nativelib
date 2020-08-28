@@ -1,9 +1,15 @@
 export type XXHashInputData = string | Buffer;
 
+/**
+ * 输出的字符串编码，兼容 crypto 的 HexBase64Latin1Encoding.
+ *
+ * base64u 是 base64 算法替换了 '/' 和 '+' 的变体。
+ * @see https://tools.ietf.org/html/rfc4648#section-5
+ */
 export type XXHashOutEncoding = "latin1" | "hex" | "base64" | "base64u";
 
 /**
- * 跟 NodeJS 的 crypto 模块差不多的API，不过没有继承 stream
+ * 跟 NodeJS 的 crypto 模块差不多的 API，不过没有继承 stream
  */
 export interface XXHash {
 
@@ -54,6 +60,7 @@ interface XXHashFunction {
 }
 
 interface SeedHashFunction extends XXHashFunction {
+
 	(data: XXHashInputData, seed: number): Buffer;
 
 	(data: XXHashInputData, seed: number, encoding: XXHashOutEncoding): string;

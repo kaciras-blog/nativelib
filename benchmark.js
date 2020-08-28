@@ -1,7 +1,7 @@
 const { performance } = require("perf_hooks");
 const crypto = require("crypto");
 const { murmurHash128x64 } = require("murmurhash-native");
-const binding = require("./build/Release/binding");
+const binding = require(".");
 
 const buffer = crypto.randomBytes(4 * 1024 * 1024);
 

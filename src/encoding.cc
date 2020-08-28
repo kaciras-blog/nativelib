@@ -4,6 +4,10 @@ namespace XXHash {
 
 	static const char table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
+	/*
+	 * 从 NodeJS 抄的代码
+	 * https://github.com/nodejs/node/blob/master/src/base64.h
+	 */
 	Local<String> UrlSafeBase64(const char* src, size_t slen) {
 		unsigned dlen = (slen + 2) / 3 * 4;
 		auto dst = new char[dlen];
@@ -92,7 +96,7 @@ namespace XXHash {
 		// 这是所有支持的选项里最长的，比这个更长肯定是错误
 		auto type = new char[sizeof("base64u")];
 
-		// 注意 sizeof("xxx") 包含了字符串末尾的0
+		// 注意 sizeof("xxx") 包含了字符串末尾的 \0
 		if (length >= sizeof(type)) {
 			type[0] = 0;
 		}
