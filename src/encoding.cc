@@ -1,5 +1,5 @@
 ﻿#include <encoding.h>
-
+#include <xxhash_class.h>
 namespace XXHash {
 
 	static const char table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";

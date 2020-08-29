@@ -8,18 +8,27 @@
 #include <node_buffer.h>
 
 namespace XXHash {
+	using namespace std;
+
 	using v8::ObjectTemplate;
 	using v8::FunctionTemplate;
 	using v8::Number;
 	using v8::Function;
 	using v8::Context;
 
+	Local<String> GetName(Isolate* isolate, const char* type, const char* version) {
+		ostringstream stream;
+		stream << type << version;
+		auto name = String::NewFromUtf8(isolate, stream.str().c_str(), NewStringType::kInternalized);
+		return name.ToLocalChecked();
+	}
+
 	// 带种子的Hash一共有12个函数，不带的也有9个，要用模板这参数也太多了吧
-	template<typename XXHashClass, typename HashSumType>
+	template<typename XXHashClass>
 	class XXHashTemplate {
 	public:
 
-		static void Init(Local<Object> exports, const char* cName, const char* sName, const char* qName) {
+		static void Init(Local<Object> exports, const char* version) {
 			auto isolate = exports->GetIsolate();
 			auto context = isolate->GetCurrentContext();
 
@@ -33,8 +42,7 @@ namespace XXHash {
 
 			// 定义一个类（也是函数），使用空函数体
 			auto clazz = FunctionTemplate::New(isolate);
-			auto name = String::NewFromUtf8(isolate, cName, NewStringType::kInternalized).ToLocalChecked();
-			clazz->SetClassName(name);
+			clazz->SetClassName(GetName(isolate, "XXHash", version));
 			clazz->InstanceTemplate()->SetInternalFieldCount(1);
 
 			// 在这个类的原型上定义几个方法
@@ -47,12 +55,15 @@ namespace XXHash {
 
 			// 定义 createXXH3_128() 函数并导出
 			auto createHash = FunctionTemplate::New(isolate, New, closure);
-			name = String::NewFromUtf8(isolate, sName, NewStringType::kInternalized).ToLocalChecked();
+			auto name = GetName(isolate, "createXXH", version);
 			createHash->SetClassName(name);
+			createHash->SetLength(1);
 			exports->Set(context, name, createHash->GetFunction(context).ToLocalChecked()).Check();
 
 			// 再导出一个快捷 Hash 的函数
-			NODE_SET_METHOD(exports, qName, QuickHash);
+			ostringstream result;
+			result << "xxHash" << version;
+			NODE_SET_METHOD(exports, result.str().c_str(), QuickHash);
 		}
 
 	private:
@@ -67,23 +78,23 @@ namespace XXHash {
 				state = new XXHashClass();
 			}
 			else if (args[0]->IsNumber()) {
-				/*auto seed = args[0]->Uint32Value(context).FromJust();
-				XXH3_128bits_reset_withSeed(data->state, seed);*/
+				auto seed = args[0]->Uint32Value(context).FromJust();
+				state = new XXHashClass(seed);
 			}
-			else if (Buffer::HasInstance(args[0])) {
-				/*auto len = Buffer::Length(args[0]);
+			else if (XXHashClass::SECRET_SIZE_MIN > -1 && Buffer::HasInstance(args[0])) {
+				auto len = Buffer::Length(args[0]);
 				auto buffer = Buffer::Data(args[0]);
 
-				if (len < XXH3_SECRET_SIZE_MIN) {
-					std::ostringstream message;
-					message << "secret must be at least " << XXH3_SECRET_SIZE_MIN << " bytes";
+				if (len < XXHashClass::SECRET_SIZE_MIN) {
+					ostringstream message;
+					message << "secret must be at least " << XXHashClass::SECRET_SIZE_MIN << " bytes";
 					return Nan::ThrowError(message.str().c_str());
 				}
 
-				XXH3_128bits_reset_withSecret(data->state, buffer, len);*/
+				state = new XXHashClass(buffer, len);
 			}
 			else {
-				return Nan::ThrowTypeError("argument must be number or Buffer");
+				return Nan::ThrowTypeError("Invalid argument");
 			}
 
 			auto instance = constructor->NewInstance(context).ToLocalChecked();
@@ -92,19 +103,17 @@ namespace XXHash {
 		}
 
 		static void Copy(const FunctionCallbackInfo<Value>& args) {
-			auto context = args.GetIsolate()->GetCurrentContext();
+			auto isolate = args.GetIsolate();
+			auto context = isolate->GetCurrentContext();
 
-			auto field = args.This()->GetAlignedPointerFromInternalField(0);
-			auto data = static_cast<XXHashTemplate*>(field);
+			auto state = static_cast<XXHashClass*>(args.This()->GetAlignedPointerFromInternalField(0));
+			auto stateCopy = new XXHashClass(state);
+			
+			auto name = String::NewFromUtf8(isolate, "constructor").ToLocalChecked();
+			auto constructor = args.This()->Get(context, name).ToLocalChecked().As<Function>();
 
-			auto dataCopy = new XXHashTemplate();
-
-			// TODO
-			auto function = args.Data().As<Object>()->GetInternalField(0).As<Function>();
-			auto instance = function->NewInstance(context).ToLocalChecked();
-
-			auto field2 = instance->GetAlignedPointerFromInternalField(0);
-			auto t2 = static_cast<XXHashTemplate*>(field2);
+			auto instance = constructor->NewInstance(context).ToLocalChecked();
+			instance->SetAlignedPointerInInternalField(0, stateCopy);
 
 			args.GetReturnValue().Set(instance);
 		}
@@ -159,7 +168,7 @@ namespace XXHash {
 		}
 
 		static void SetDigestOutput(
-			HashSumType sum,
+			typename XXHashClass::Sum sum,
 			const FunctionCallbackInfo<Value>& args,
 			int i
 		) {
@@ -167,7 +176,7 @@ namespace XXHash {
 
 			if (args.Length() == i) {
 				rv = Buffer::New(args.GetIsolate(), sizeof(sum)).ToLocalChecked();
-				*reinterpret_cast<XXH128_canonical_t*>(node::Buffer::Data(rv)) = sum;
+				*reinterpret_cast<typename XXHashClass::Sum*>(node::Buffer::Data(rv)) = sum;
 			}
 			else if (args[i]->IsString()) {
 				auto output = reinterpret_cast<char*>(sum.digest);
@@ -182,7 +191,10 @@ namespace XXHash {
 	};
 
 	void Initialize(Local<Object> exports) {
-		XXHashTemplate<XXHash3_128Wrapper, XXH128_canonical_t>::Init(exports, "XXHash3_128", "createXXH3_128", "xxHash3_128");
+		XXHashTemplate<XXHash32Wrapper>::Init(exports, "32");
+		XXHashTemplate<XXHash64Wrapper>::Init(exports, "64");
+		XXHashTemplate<XXHash3_64Wrapper>::Init(exports, "3");
+		XXHashTemplate<XXHash3_128Wrapper>::Init(exports, "3_128");
 	}
 
 	NODE_MODULE(NODE_GYP_MODULE_NAME, Initialize);

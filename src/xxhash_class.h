@@ -10,38 +10,49 @@ namespace XXHash {
 
 	class XXHash32Wrapper {
 	private:
-		XXH32_state_t* state;
+		XXH32_state_t* state = XXH32_createState();
 	public:
+		typedef XXH32_canonical_t Sum;
+		static const int SECRET_SIZE_MIN = -1;
+
+		XXHash32Wrapper();
 		XXHash32Wrapper(XXH32_hash_t seed);
 
 		explicit XXHash32Wrapper(XXHash32Wrapper* src);
 		~XXHash32Wrapper();
 
 		void update(const void* data, size_t len);
-		XXH32_canonical_t digest();
+		Sum digest();
 
-		static XXH32_canonical_t digest(const void* data, size_t len);
+		static Sum digest(const void* data, size_t len);
 	};
 
 	class XXHash64Wrapper {
 	private:
-		XXH64_state_t* state;
+		XXH64_state_t* state = XXH64_createState();
 	public:
+		typedef XXH64_canonical_t Sum;
+		static const int SECRET_SIZE_MIN = -1;
+
+		XXHash64Wrapper();
 		XXHash64Wrapper(XXH64_hash_t seed);
 
 		explicit XXHash64Wrapper(XXHash64Wrapper* src);
 		~XXHash64Wrapper();
 
 		void update(const void* data, size_t len);
-		XXH64_canonical_t digest();
+		Sum digest();
 
-		static XXH64_canonical_t digest(const void* data, size_t len);
+		static Sum digest(const void* data, size_t len);
 	};
 
 	class XXHash3_64Wrapper {
 	private:
-		XXH3_state_t* state;
+		XXH3_state_t* state = XXH3_createState();
 	public:
+		typedef XXH64_canonical_t Sum;
+		static const int SECRET_SIZE_MIN = XXH3_SECRET_SIZE_MIN;
+
 		XXHash3_64Wrapper();
 		XXHash3_64Wrapper(XXH64_hash_t seed);
 		XXHash3_64Wrapper(const void* secret, size_t size);
@@ -50,15 +61,18 @@ namespace XXHash {
 		~XXHash3_64Wrapper();
 
 		void update(const void* data, size_t len);
-		XXH64_canonical_t digest();
+		Sum digest();
 
-		static XXH64_canonical_t digest(const void* data, size_t len);
+		static Sum digest(const void* data, size_t len);
 	};
 
 	class XXHash3_128Wrapper {
 	private:
-		XXH3_state_t* state;
+		XXH3_state_t* state = XXH3_createState();
 	public:
+		typedef XXH128_canonical_t Sum;
+		static const int SECRET_SIZE_MIN = XXH3_SECRET_SIZE_MIN;
+
 		XXHash3_128Wrapper();
 		XXHash3_128Wrapper(XXH64_hash_t seed);
 		XXHash3_128Wrapper(const void* secret, size_t size);
@@ -67,8 +81,8 @@ namespace XXHash {
 		~XXHash3_128Wrapper();
 
 		void update(const void* data, size_t len);
-		XXH128_canonical_t digest();
+		Sum digest();
 
-		static XXH128_canonical_t digest(const void* data, size_t len);
+		static Sum digest(const void* data, size_t len);
 	};
 }

@@ -1,11 +1,15 @@
+#include <assert.h>
 #include <xxhash_class.h>
 
 namespace XXHash {
 
 	// ========================== XXHash 32bit ==========================
 
+	XXHash32Wrapper::XXHash32Wrapper() {
+		XXH32_reset(state, 0);
+	}
+
 	XXHash32Wrapper::XXHash32Wrapper(XXH32_hash_t seed) {
-		state = XXH32_createState();
 		XXH32_reset(state, seed);
 	}
 
@@ -37,8 +41,11 @@ namespace XXHash {
 
 	// ========================== XXHash 64bit ==========================
 
+	XXHash64Wrapper::XXHash64Wrapper() {
+		XXH64_reset(state, 0);
+	}
+
 	XXHash64Wrapper::XXHash64Wrapper(XXH64_hash_t seed) {
-		state = XXH64_createState();
 		XXH64_reset(state, seed);
 	}
 
@@ -71,17 +78,14 @@ namespace XXHash {
 	// ========================= XXHash 3 64bit =========================
 
 	XXHash3_64Wrapper::XXHash3_64Wrapper() {
-		state = XXH3_createState();
 		XXH3_64bits_reset(state);
 	}
 
 	XXHash3_64Wrapper::XXHash3_64Wrapper(XXH64_hash_t seed) {
-		state = XXH3_createState();
 		XXH3_64bits_reset_withSeed(state, seed);
 	}
 
 	XXHash3_64Wrapper::XXHash3_64Wrapper(const void* secret, size_t size) {
-		state = XXH3_createState();
 		XXH3_64bits_reset_withSecret(state, secret, size);
 	}
 
@@ -114,17 +118,14 @@ namespace XXHash {
 	// ========================= XXHash 3 128bit =========================
 
 	XXHash3_128Wrapper::XXHash3_128Wrapper() {
-		state = XXH3_createState();
 		XXH3_128bits_reset(state);
 	}
 
 	XXHash3_128Wrapper::XXHash3_128Wrapper(XXH64_hash_t seed) {
-		state = XXH3_createState();
 		XXH3_128bits_reset_withSeed(state, seed);
 	}
 
 	XXHash3_128Wrapper::XXHash3_128Wrapper(const void* secret, size_t size) {
-		state = XXH3_createState();
 		XXH3_128bits_reset_withSecret(state, secret, size);
 	}
 

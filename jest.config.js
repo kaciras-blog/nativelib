@@ -1,6 +1,6 @@
 module.exports = {
 	testMatch: [
-		"**/test/**/*-test.[jt]s?(x)",
+		"**/test/*-test.[jt]s",
 	],
 	testEnvironment: "node",
 	clearMocks: true,
