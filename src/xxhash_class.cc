@@ -3,6 +3,24 @@
 
 namespace XXHash {
 
+	XXH32_canonical_t Canonical32(XXH32_hash_t hash) {
+		XXH32_canonical_t canonical_sum;
+		XXH32_canonicalFromHash(&canonical_sum, hash);
+		return canonical_sum;
+	}
+
+	XXH64_canonical_t Canonical64(XXH64_hash_t hash) {
+		XXH64_canonical_t canonical_sum;
+		XXH64_canonicalFromHash(&canonical_sum, hash);
+		return canonical_sum;
+	}
+
+	XXH128_canonical_t Canonical128(XXH128_hash_t hash) {
+		XXH128_canonical_t canonical_sum;
+		XXH128_canonicalFromHash(&canonical_sum, hash);
+		return canonical_sum;
+	}
+
 	// ========================== XXHash 32bit ==========================
 
 	XXHash32Wrapper::XXHash32Wrapper() {
@@ -21,22 +39,16 @@ namespace XXHash {
 		XXH32_freeState(state);
 	}
 
-	void XXHash32Wrapper::update(const void* data, size_t len) {
-		XXH32_update(state, data, len);
+	void XXHash32Wrapper::update(InputData input) {
+		XXH32_update(state, input.Buffer, input.Length);
 	}
 
 	XXH32_canonical_t XXHash32Wrapper::digest() {
-		auto hash = XXH32_digest(state);
-		XXH32_canonical_t canonical_sum;
-		XXH32_canonicalFromHash(&canonical_sum, hash);
-		return canonical_sum;
+		return Canonical32(XXH32_digest(state));
 	}
 
-	XXH32_canonical_t XXHash32Wrapper::digest(const void* data, size_t len) {
-		auto hash = XXH32(data, len, 0);
-		XXH32_canonical_t canonical_sum;
-		XXH32_canonicalFromHash(&canonical_sum, hash);
-		return canonical_sum;
+	XXH32_canonical_t XXHash32Wrapper::digest(InputData input) {
+		return Canonical32(XXH32(input.Buffer, input.Length, 0));
 	}
 
 	// ========================== XXHash 64bit ==========================
@@ -57,22 +69,16 @@ namespace XXHash {
 		XXH64_freeState(state);
 	}
 
-	void XXHash64Wrapper::update(const void* data, size_t len) {
-		XXH64_update(state, data, len);
+	void XXHash64Wrapper::update(InputData input) {
+		XXH64_update(state, input.Buffer, input.Length);
 	}
 
 	XXH64_canonical_t XXHash64Wrapper::digest() {
-		auto hash = XXH64_digest(state);
-		XXH64_canonical_t canonical_sum;
-		XXH64_canonicalFromHash(&canonical_sum, hash);
-		return canonical_sum;
+		return Canonical64(XXH64_digest(state));
 	}
 
-	XXH64_canonical_t XXHash64Wrapper::digest(const void* data, size_t len) {
-		auto hash = XXH64(data, len, 0);
-		XXH64_canonical_t canonical_sum;
-		XXH64_canonicalFromHash(&canonical_sum, hash);
-		return canonical_sum;
+	XXH64_canonical_t XXHash64Wrapper::digest(InputData input) {
+		return  Canonical64(XXH64(input.Buffer, input.Length, 0));
 	}
 
 	// ========================= XXHash 3 64bit =========================
@@ -85,10 +91,6 @@ namespace XXHash {
 		XXH3_64bits_reset_withSeed(state, seed);
 	}
 
-	XXHash3_64Wrapper::XXHash3_64Wrapper(const void* secret, size_t size) {
-		XXH3_64bits_reset_withSecret(state, secret, size);
-	}
-
 	XXHash3_64Wrapper::XXHash3_64Wrapper(XXHash3_64Wrapper* src) {
 		XXH3_copyState(state, src->state);
 	}
@@ -97,22 +99,16 @@ namespace XXHash {
 		XXH3_freeState(state);
 	}
 
-	void XXHash3_64Wrapper::update(const void* data, size_t len) {
-		XXH3_64bits_update(state, data, len);
+	void XXHash3_64Wrapper::update(InputData input) {
+		XXH3_64bits_update(state, input.Buffer, input.Length);
 	}
 
 	XXH64_canonical_t XXHash3_64Wrapper::digest() {
-		auto hash = XXH3_64bits_digest(state);
-		XXH64_canonical_t canonical_sum;
-		XXH64_canonicalFromHash(&canonical_sum, hash);
-		return canonical_sum;
+		return Canonical64(XXH3_64bits_digest(state));
 	}
 
-	XXH64_canonical_t XXHash3_64Wrapper::digest(const void* data, size_t len) {
-		auto hash = XXH3_64bits(data, len);
-		XXH64_canonical_t canonical_sum;
-		XXH64_canonicalFromHash(&canonical_sum, hash);
-		return canonical_sum;
+	XXH64_canonical_t XXHash3_64Wrapper::digest(InputData input) {
+		return Canonical64(XXH3_64bits(input.Buffer, input.Length));
 	}
 
 	// ========================= XXHash 3 128bit =========================
@@ -125,10 +121,6 @@ namespace XXHash {
 		XXH3_128bits_reset_withSeed(state, seed);
 	}
 
-	XXHash3_128Wrapper::XXHash3_128Wrapper(const void* secret, size_t size) {
-		XXH3_128bits_reset_withSecret(state, secret, size);
-	}
-
 	XXHash3_128Wrapper::XXHash3_128Wrapper(XXHash3_128Wrapper* src) {
 		XXH3_copyState(state, src->state);
 	}
@@ -137,21 +129,15 @@ namespace XXHash {
 		XXH3_freeState(state);
 	}
 
-	void XXHash3_128Wrapper::update(const void* data, size_t len) {
-		XXH3_128bits_update(state, data, len);
+	void XXHash3_128Wrapper::update(InputData input) {
+		XXH3_128bits_update(state, input.Buffer, input.Length);
 	}
 
 	XXH128_canonical_t XXHash3_128Wrapper::digest() {
-		auto hash = XXH3_128bits_digest(state);
-		XXH128_canonical_t canonical_sum;
-		XXH128_canonicalFromHash(&canonical_sum, hash);
-		return canonical_sum;
+		return Canonical128(XXH3_128bits_digest(state));
 	}
 
-	XXH128_canonical_t XXHash3_128Wrapper::digest(const void* data, size_t len) {
-		auto hash = XXH3_128bits(data, len);
-		XXH128_canonical_t canonical_sum;
-		XXH128_canonicalFromHash(&canonical_sum, hash);
-		return canonical_sum;
+	XXH128_canonical_t XXHash3_128Wrapper::digest(InputData input) {
+		return Canonical128(XXH3_128bits(input.Buffer, input.Length));
 	}
 }

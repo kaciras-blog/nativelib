@@ -23,7 +23,6 @@ namespace XXHash {
 		return name.ToLocalChecked();
 	}
 
-	// 带种子的Hash一共有12个函数，不带的也有9个，要用模板这参数也太多了吧
 	template<typename XXHashClass>
 	class XXHashTemplate {
 	public:
@@ -68,6 +67,10 @@ namespace XXHash {
 
 	private:
 
+		static XXHashClass* GetState(const FunctionCallbackInfo<Value>& args) {
+			return static_cast<XXHashClass*>(args.This()->GetAlignedPointerFromInternalField(0));
+		}
+
 		static void New(const FunctionCallbackInfo<Value>& args) {
 			auto context = args.GetIsolate()->GetCurrentContext();
 			auto constructor = args.Data().As<Object>()->GetInternalField(0).As<Function>();
@@ -80,18 +83,6 @@ namespace XXHash {
 			else if (args[0]->IsNumber()) {
 				auto seed = args[0]->Uint32Value(context).FromJust();
 				state = new XXHashClass(seed);
-			}
-			else if (XXHashClass::SECRET_SIZE_MIN > -1 && Buffer::HasInstance(args[0])) {
-				auto len = Buffer::Length(args[0]);
-				auto buffer = Buffer::Data(args[0]);
-
-				if (len < XXHashClass::SECRET_SIZE_MIN) {
-					ostringstream message;
-					message << "secret must be at least " << XXHashClass::SECRET_SIZE_MIN << " bytes";
-					return Nan::ThrowError(message.str().c_str());
-				}
-
-				state = new XXHashClass(buffer, len);
 			}
 			else {
 				return Nan::ThrowTypeError("Invalid argument");
@@ -106,9 +97,8 @@ namespace XXHash {
 			auto isolate = args.GetIsolate();
 			auto context = isolate->GetCurrentContext();
 
-			auto state = static_cast<XXHashClass*>(args.This()->GetAlignedPointerFromInternalField(0));
-			auto stateCopy = new XXHashClass(state);
-			
+			auto stateCopy = new XXHashClass(GetState(args));
+
 			auto name = String::NewFromUtf8(isolate, "constructor").ToLocalChecked();
 			auto constructor = args.This()->Get(context, name).ToLocalChecked().As<Function>();
 
@@ -128,9 +118,7 @@ namespace XXHash {
 				return Nan::ThrowTypeError("data must be string or buffer");
 			}
 
-			auto field = args.This()->GetAlignedPointerFromInternalField(0);
-			auto state = static_cast<XXHashClass*>(field);
-			state->update(inputData.Buffer, inputData.Length);
+			GetState(args)->update(inputData);
 
 			if (inputData.IsOwned) {
 				delete[] inputData.Buffer;
@@ -140,10 +128,7 @@ namespace XXHash {
 		}
 
 		static void Digest(const FunctionCallbackInfo<Value>& args) {
-			auto field = args.This()->GetAlignedPointerFromInternalField(0);
-			auto state = static_cast<XXHashClass*>(field);
-
-			SetDigestOutput(state->digest(), args, 0);
+			SetDigestOutput(GetState(args)->digest(), args, 0);
 		}
 
 		static void QuickHash(const FunctionCallbackInfo<Value>& args) {
@@ -151,14 +136,12 @@ namespace XXHash {
 				return Nan::ThrowError("data required");
 			}
 
-			auto isolate = args.GetIsolate();
 			auto inputData = ParseInput(args[0]);
-
-			if (inputData.Buffer == NULL) {
+			if (inputData.isInvalid()) {
 				return Nan::ThrowTypeError("data must be string or buffer");
 			}
 
-			auto sum = XXHashClass::digest(inputData.Buffer, inputData.Length);
+			auto sum = XXHashClass::digest(inputData);
 
 			if (inputData.IsOwned) {
 				delete[] inputData.Buffer;
@@ -193,7 +176,7 @@ namespace XXHash {
 	void Initialize(Local<Object> exports) {
 		XXHashTemplate<XXHash32Wrapper>::Init(exports, "32");
 		XXHashTemplate<XXHash64Wrapper>::Init(exports, "64");
-		XXHashTemplate<XXHash3_64Wrapper>::Init(exports, "3");
+		XXHashTemplate<XXHash3_64Wrapper>::Init(exports, "3_64");
 		XXHashTemplate<XXHash3_128Wrapper>::Init(exports, "3_128");
 	}
 

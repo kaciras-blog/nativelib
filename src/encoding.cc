@@ -1,5 +1,5 @@
 ﻿#include <encoding.h>
-#include <xxhash_class.h>
+
 namespace XXHash {
 
 	static const char table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
@@ -61,28 +61,27 @@ namespace XXHash {
 	InputData ParseInput(const Local<Value> input) {
 		InputData data;
 
-		// Buffer::Data 返回底层数据，无复制，所以用完也不要删
+		// Buffer::Data 返回底层数据，无复制，所以用完也不能删
 		if (Buffer::HasInstance(input)) {
 			data.Length = Buffer::Length(input);
 			data.Buffer = Buffer::Data(input);
 			data.IsOwned = false;
 		}
 		else if (input->IsString()) {
+			data.IsOwned = true;
 			data.Length = Nan::DecodeBytes(input, Nan::UTF8);
 			data.Buffer = new char[data.Length];
 			Nan::DecodeWrite(data.Buffer, data.Length, input, Nan::UTF8);
-			data.IsOwned = true;
 		}
 		else {
-			data.IsOwned = false;
-			data.Length = 0;
 			data.Buffer = NULL;
+			data.IsOwned = false;
 		}
 
 		return data;
 	}
 
-	bool InputData::isInvalid() {
+	bool InputData::isInvalid() const {
 		return Buffer == NULL;
 	}
 

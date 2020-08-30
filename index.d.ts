@@ -9,7 +9,7 @@ export type XXHashInputData = string | Buffer;
 export type XXHashOutEncoding = "latin1" | "hex" | "base64" | "base64u";
 
 /**
- * 跟 NodeJS 的 crypto 模块差不多的 API，不过没有继承 stream
+ * 跟 NodeJS 的 crypto 模块差不多的 API，不过没有继承 stream，string 输入也仅支持 utf8
  */
 export interface XXHash {
 
@@ -24,16 +24,10 @@ export interface XXHash {
 
 interface XXHashFactory {
 
-	/** 创建一个 XXHash 的实例 */
-	(): XXHash;
-
 	/**
-	 * 使用一个密钥来初始化 XXHash。
-	 *
-	 * @param secret 密钥
-	 * @throws 若密钥小于最低长度
+	 * 创建一个 XXHash 的实例，使用默认的种子。
 	 */
-	(secret: Buffer): XXHash;
+	(): XXHash;
 
 	/**
 	 * 使用种子来初始化 XXHash。
@@ -57,20 +51,13 @@ interface XXHashFunction {
 	(data: XXHashInputData): Buffer;
 
 	(data: XXHashInputData, encoding: XXHashOutEncoding): string;
-}
-
-interface SeedHashFunction extends XXHashFunction {
 
 	(data: XXHashInputData, seed: number): Buffer;
 
 	(data: XXHashInputData, seed: number, encoding: XXHashOutEncoding): string;
-
-	(data: XXHashInputData, secret: Buffer): Buffer;
-
-	(data: XXHashInputData, secret: Buffer, encoding: XXHashOutEncoding): string;
 }
 
-export const xxHash32: SeedHashFunction;
-export const xxHash64: SeedHashFunction;
-export const xxHash3_64: SeedHashFunction;
-export const xxHash3_128: SeedHashFunction;
+export const xxHash32: XXHashFunction;
+export const xxHash64: XXHashFunction;
+export const xxHash3_64: XXHashFunction;
+export const xxHash3_128: XXHashFunction;

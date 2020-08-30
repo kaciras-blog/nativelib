@@ -21,7 +21,7 @@ namespace XXHash {
 		size_t Length;
 		bool IsOwned;
 
-		bool isInvalid();
+		bool isInvalid() const;
 	};
 
 	InputData ParseInput(Local<Value> input);
