@@ -13,6 +13,9 @@ namespace XXHash {
 	using v8::Function;
 	using v8::Context;
 
+	/*
+	 * 由两个字符串来组装函数的名字，返回 internalized string。
+	 */
 	Local<String> GetName(Isolate* isolate, const char* type, const char* version) {
 		ostringstream stream;
 		stream << type << version;

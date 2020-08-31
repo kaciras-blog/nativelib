@@ -1,3 +1,4 @@
+// 测试输入方法（createXX_, update, xxHash_）在各种参数类型和编码下的正确性
 const binding = require("..");
 
 test.each([

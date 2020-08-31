@@ -1,3 +1,4 @@
+// 测试 XXHash 能否正确的更新和复制
 const binding = require("..");
 
 it('should copy state', () => {

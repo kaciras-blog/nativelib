@@ -1,3 +1,4 @@
+// 测试输出方法返回的结果是否正确，以及各种输出编码
 const binding = require("..");
 
 test.each([

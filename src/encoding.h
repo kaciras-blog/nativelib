@@ -17,10 +17,13 @@ namespace XXHash {
 	using v8::MaybeLocal;
 	using v8::NewStringType;
 
+	/*
+	 * è¡¨ç¤ºä»è¾“å…¥ï¼ˆBuffer, stringï¼‰è¯»å–çš„åŸå§‹å­—èŠ‚æ•°æ®
+	 */
 	class InputData {
 	public:
-		size_t Length;
 		const char* Buffer;
+		size_t Length;
 
 		InputData(const char* buffer, size_t len, bool owned);
 		~InputData();
@@ -29,12 +32,15 @@ namespace XXHash {
 	};
 
 	/*
-	 * ½âÎöÊäÈëµÄJSÖµ£¬·µ»ØĞèÒª´«µİ¸ø hash º¯ÊıµÄÊı¾İ¡£
+	 * è§£æè¾“å…¥çš„JSå­—ç¬¦ä¸²ï¼Œè¿”å›éœ€è¦ä¼ é€’ç»™ hash å‡½æ•°çš„æ•°æ®ã€‚
 	 *
-	 * ¸ã¸öÖÇÄÜÖ¸ÕëÍæÍæ±È±Ï¾¹ÒÔÇ°Ã»ÓÃ¹ı£¬ÆäÊµ²»ÓÃÒ²ĞĞ¡£
+	 * æä¸ªæ™ºèƒ½æŒ‡é’ˆç©ç©æ¯”æ¯•ç«Ÿä»¥å‰æ²¡ç”¨è¿‡ï¼Œå…¶å®ä¸ç”¨ä¹Ÿè¡Œã€‚
 	 */
 	shared_ptr<InputData> ParseString(Isolate* isolate, Local<Value> input, encoding encoding);
 
+	/*
+	 * ä» Buffer å¯¹è±¡è·å–æ•°æ®ï¼Œæ³¨æ„è°ƒç”¨å‰å…ˆç”¨ Buffer::HasInstance æ£€æŸ¥
+	 */
 	shared_ptr<InputData> ParseBuffer(Local<Value> input);
 
 	Local<Value> EncodeDigest(const char* digest, size_t size, Local<String> outType);

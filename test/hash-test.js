@@ -1,6 +1,7 @@
+/*
+ * 测试 Hash 的结果是否正确
+ */
 const binding = require("..");
-
-// 测试 Hash 结果是否正确
 
 test.each([
 	["xxhash", "9a95b70e"],
