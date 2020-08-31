@@ -24,13 +24,18 @@ namespace XXHash {
 
 		InputData(const char* buffer, size_t len, bool owned);
 		~InputData();
-		bool isInvalid() const;
-
 	private:
 		bool IsOwned;
 	};
 
-	shared_ptr<InputData> ParseInput(Local<Value> input);
+	/*
+	 * 解析输入的JS值，返回需要传递给 hash 函数的数据。
+	 *
+	 * 搞个智能指针玩玩比毕竟以前没用过，其实不用也行。
+	 */
+	shared_ptr<InputData> ParseString(Isolate* isolate, Local<Value> input, encoding encoding);
+
+	shared_ptr<InputData> ParseBuffer(Local<Value> input);
 
 	Local<Value> EncodeDigest(const char* digest, size_t size, Local<String> outType);
 }

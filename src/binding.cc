@@ -2,7 +2,6 @@
 #include <xxhash_class.h>
 
 #include <sstream>
-#include <node_api.h>
 #include <node.h>
 #include <nan.h>
 #include <node_buffer.h>
@@ -50,7 +49,7 @@ namespace XXHash {
 			// 把类的构造函数加入闭包
 			closure->SetInternalField(0, clazz->GetFunction(context).ToLocalChecked());
 
-			// 定义 createXXH3_128() 函数并导出
+			// 定义 createXXH<verion>() 函数并导出
 			auto createHash = FunctionTemplate::New(isolate, New, closure);
 			auto name = GetName(isolate, "createXXH", version);
 			createHash->SetClassName(name);
@@ -111,13 +110,34 @@ namespace XXHash {
 				return Nan::ThrowError("Argument required");
 			}
 
-			auto data = ParseInput(args[0]);
-			if (data->isInvalid()) {
+			auto isolate = args.GetIsolate();
+			auto input = args[0];
+			shared_ptr<InputData> data;
+
+			if (Buffer::HasInstance(input)) {
+				data = ParseBuffer(input);
+			}
+			else if (input->IsString()) {
+				encoding enc;
+
+				if (args.Length() < 2) {
+					enc = encoding::UTF8;
+				}
+				else {
+					enc = node::ParseEncoding(isolate, args[1], static_cast<encoding>(-1));
+				}
+
+				if (enc == -1) {
+					return Nan::ThrowError("Invalid encoding");
+				}
+
+				data = ParseString(isolate, input, enc);
+			}
+			else {
 				return Nan::ThrowTypeError("data must be string or buffer");
 			}
 
 			GetState(args)->update(data.get());
-
 			args.GetReturnValue().Set(args.This());
 		}
 
@@ -130,8 +150,16 @@ namespace XXHash {
 				return Nan::ThrowError("data required");
 			}
 
-			auto data = ParseInput(args[0]);
-			if (data->isInvalid()) {
+			shared_ptr<InputData> data;
+			auto input = args[0];
+
+			if (Buffer::HasInstance(input)) {
+				data = ParseBuffer(input);
+			}
+			else if (input->IsString()) {
+				data = ParseString(args.GetIsolate(), input, encoding::UTF8);
+			}
+			else {
 				return Nan::ThrowTypeError("data must be string or buffer");
 			}
 

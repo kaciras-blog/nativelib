@@ -1,6 +1,7 @@
 ﻿#include <encoding.h>
 
 namespace XXHash {
+	using node::encoding;
 
 	static const char table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
@@ -70,39 +71,18 @@ namespace XXHash {
 		}
 	}
 
-	bool InputData::isInvalid() const {
-		return Buffer == NULL;
+	shared_ptr<InputData> ParseString(Isolate* isolate, Local<Value> input, encoding encoding) {
+		auto len = node::DecodeBytes(isolate, input, encoding);
+		auto buffer = new char[len];
+		node::DecodeWrite(isolate, buffer, len, input, encoding);
+		return make_shared<InputData>(buffer, len, true);
 	}
 
-	/*
-	 * 解析输入的JS值，返回需要传递给 hash 函数的数据。
-	 *
-	 * 搞个智能指针玩玩比毕竟以前没用过，其实不用也行。
-	 */
-	shared_ptr<InputData> ParseInput(const Local<Value> input) {
-		char* buffer;
-		size_t len;
-		bool owned;
-
-		// Buffer::Data 返回底层数据，无复制，所以用完也不能删
-		if (Buffer::HasInstance(input)) {
-			owned = false;
-			len = Buffer::Length(input);
-			buffer = Buffer::Data(input);
-		}
-		else if (input->IsString()) {
-			owned = true;
-			len = Nan::DecodeBytes(input, Nan::UTF8);
-			buffer = new char[len];
-			Nan::DecodeWrite(buffer, len, input, Nan::UTF8);
-		}
-		else {
-			owned = false;
-			len = 0;
-			buffer = NULL;
-		}
-
-		return make_shared<InputData>(buffer, len, owned);
+	// Buffer::Data 返回底层数据，无复制，所以用完也不能删
+	shared_ptr<InputData> ParseBuffer(Local<Value> input) {
+		auto len = Buffer::Length(input);
+		auto buffer = Buffer::Data(input);
+		return make_shared<InputData>(buffer, len, false);
 	}
 
 	/*
