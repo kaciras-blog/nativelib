@@ -8,8 +8,6 @@
 #include <node_buffer.h>
 
 namespace XXHash {
-	using namespace std;
-
 	using v8::ObjectTemplate;
 	using v8::FunctionTemplate;
 	using v8::Number;
@@ -113,16 +111,12 @@ namespace XXHash {
 				return Nan::ThrowError("Argument required");
 			}
 
-			auto inputData = ParseInput(args[0]);
-			if (inputData.isInvalid()) {
+			auto data = ParseInput(args[0]);
+			if (data->isInvalid()) {
 				return Nan::ThrowTypeError("data must be string or buffer");
 			}
 
-			GetState(args)->update(inputData);
-
-			if (inputData.IsOwned) {
-				delete[] inputData.Buffer;
-			}
+			GetState(args)->update(data.get());
 
 			args.GetReturnValue().Set(args.This());
 		}
@@ -136,18 +130,12 @@ namespace XXHash {
 				return Nan::ThrowError("data required");
 			}
 
-			auto inputData = ParseInput(args[0]);
-			if (inputData.isInvalid()) {
+			auto data = ParseInput(args[0]);
+			if (data->isInvalid()) {
 				return Nan::ThrowTypeError("data must be string or buffer");
 			}
 
-			auto sum = XXHashClass::digest(inputData);
-
-			if (inputData.IsOwned) {
-				delete[] inputData.Buffer;
-			}
-
-			SetDigestOutput(sum, args, 1);
+			SetDigestOutput(XXHashClass::digest(data.get()), args, 1);
 		}
 
 		static void SetDigestOutput(

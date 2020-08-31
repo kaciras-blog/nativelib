@@ -58,27 +58,16 @@ namespace XXHash {
 		return result.ToLocalChecked();
 	}
 
-	InputData ParseInput(const Local<Value> input) {
-		InputData data;
+	InputData::InputData(const char* buffer, size_t len, bool owned) {
+		Buffer = buffer;
+		Length = len;
+		IsOwned = owned;
+	}
 
-		// Buffer::Data 返回底层数据，无复制，所以用完也不能删
-		if (Buffer::HasInstance(input)) {
-			data.Length = Buffer::Length(input);
-			data.Buffer = Buffer::Data(input);
-			data.IsOwned = false;
+	InputData::~InputData() {
+		if (IsOwned) {
+			delete[] Buffer;
 		}
-		else if (input->IsString()) {
-			data.IsOwned = true;
-			data.Length = Nan::DecodeBytes(input, Nan::UTF8);
-			data.Buffer = new char[data.Length];
-			Nan::DecodeWrite(data.Buffer, data.Length, input, Nan::UTF8);
-		}
-		else {
-			data.Buffer = NULL;
-			data.IsOwned = false;
-		}
-
-		return data;
 	}
 
 	bool InputData::isInvalid() const {
@@ -86,7 +75,41 @@ namespace XXHash {
 	}
 
 	/*
-	 * "latin1" | "hex" | "base64" | "base64u";
+	 * 解析输入的JS值，返回需要传递给 hash 函数的数据。
+	 *
+	 * 搞个智能指针玩玩比毕竟以前没用过，其实不用也行。
+	 */
+	shared_ptr<InputData> ParseInput(const Local<Value> input) {
+		char* buffer;
+		size_t len;
+		bool owned;
+
+		// Buffer::Data 返回底层数据，无复制，所以用完也不能删
+		if (Buffer::HasInstance(input)) {
+			owned = false;
+			len = Buffer::Length(input);
+			buffer = Buffer::Data(input);
+		}
+		else if (input->IsString()) {
+			owned = true;
+			len = Nan::DecodeBytes(input, Nan::UTF8);
+			buffer = new char[len];
+			Nan::DecodeWrite(buffer, len, input, Nan::UTF8);
+		}
+		else {
+			owned = false;
+			len = 0;
+			buffer = NULL;
+		}
+
+		return make_shared<InputData>(buffer, len, owned);
+	}
+
+	/*
+	 * 将 char* 转换为JS的字符串，支持 "latin1" | "hex" | "base64" | "base64u"
+	 *
+	 * base64u 是 base64 算法替换了 '/' 和 '+' 的变体。
+	 * https://tools.ietf.org/html/rfc4648#section-5
 	 */
 	Local<Value> EncodeDigest(const char* digest, size_t size, Local<String> outType) {
 		Local<Value> result;

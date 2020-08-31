@@ -20,10 +20,10 @@ namespace XXHash {
 		XXHash32Wrapper(XXH32_hash_t seed);
 		~XXHash32Wrapper();
 
-		void update(InputData input);
+		void update(InputData* input);
 		Sum digest();
 
-		static Sum digest(InputData input);
+		static Sum digest(InputData* input);
 	};
 
 	class XXHash64Wrapper {
@@ -37,10 +37,10 @@ namespace XXHash {
 		XXHash64Wrapper(XXH64_hash_t seed);
 		~XXHash64Wrapper();
 
-		void update(InputData input);
+		void update(InputData* input);
 		Sum digest();
 
-		static Sum digest(InputData input);
+		static Sum digest(InputData* input);
 	};
 
 	class XXHash3_64Wrapper {
@@ -53,11 +53,11 @@ namespace XXHash {
 		XXHash3_64Wrapper();
 		XXHash3_64Wrapper(XXH64_hash_t seed);
 		~XXHash3_64Wrapper();
-
-		void update(InputData input);
+		
+		void update(InputData* input);
 		Sum digest();
 
-		static Sum digest(InputData input);
+		static Sum digest(InputData* input);
 	};
 
 	class XXHash3_128Wrapper {
@@ -71,9 +71,9 @@ namespace XXHash {
 		XXHash3_128Wrapper(XXH64_hash_t seed);
 		~XXHash3_128Wrapper();
 
-		void update(InputData input);
+		void update(InputData* input);
 		Sum digest();
 
-		static Sum digest(InputData input);
+		static Sum digest(InputData* input);
 	};
 }

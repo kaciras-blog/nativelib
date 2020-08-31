@@ -6,6 +6,7 @@
 
 namespace XXHash {
 	using namespace node;
+	using namespace std;
 
 	using v8::FunctionCallbackInfo;
 	using v8::Isolate;
@@ -16,15 +17,20 @@ namespace XXHash {
 	using v8::MaybeLocal;
 	using v8::NewStringType;
 
-	struct InputData {
-		char* Buffer;
+	class InputData {
+	public:
 		size_t Length;
-		bool IsOwned;
+		const char* Buffer;
 
+		InputData(const char* buffer, size_t len, bool owned);
+		~InputData();
 		bool isInvalid() const;
+
+	private:
+		bool IsOwned;
 	};
 
-	InputData ParseInput(Local<Value> input);
+	shared_ptr<InputData> ParseInput(Local<Value> input);
 
 	Local<Value> EncodeDigest(const char* digest, size_t size, Local<String> outType);
 }
