@@ -21,14 +21,30 @@ function murmurHash3_sync() {
 	return murmurHash128x64(buffer, "base64");
 }
 
+function xxHash32() {
+	return binding.xxHash32(buffer, "base64u");
+}
+
+function xxHash64() {
+	return binding.xxHash64(buffer, "base64u");
+}
+
+function xxHash3_64() {
+	return binding.xxHash3_64(buffer, "base64u");
+}
+
 function xxHash3_128() {
 	return binding.xxHash3_128(buffer, "base64u");
 }
 
 async function test(func) {
-	const start = performance.now();
 	let result;
-	for (let i = 0; i < 10; i++) {
+
+	// warm up
+	for (let i = 0; i < 100; i++) func();
+
+	const start = performance.now();
+	for (let i = 0; i < 100; i++) {
 		result = func();
 	}
 	const end = performance.now();
@@ -38,8 +54,13 @@ async function test(func) {
 	console.log(`${(end - start).toFixed(3)} ms`);
 }
 
-test(sha2_256);
-test(xxHash3_128);
-test(md5);
 test(murmurHash3_sync);
+
+test(xxHash32);
+test(xxHash64);
+test(xxHash3_64);
+test(xxHash3_128);
+
+test(sha2_256);
+test(md5);
 test(sha3_256);
