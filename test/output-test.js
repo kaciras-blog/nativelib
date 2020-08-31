@@ -2,6 +2,7 @@ const binding = require("..");
 
 test.each([
 	undefined,
+	null,
 	"",
 	"foo",
 	"loooooooooooooooooong",
@@ -19,4 +20,5 @@ test.each([
 ("should return %s string", (enc, dec) => {
 	const hash = binding.createXXH3_128().update("xxhash");
 	expect(Buffer.from(hash.digest(enc), dec)).toStrictEqual(hash.digest());
-})
+});
+
