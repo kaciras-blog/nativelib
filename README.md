@@ -7,7 +7,7 @@ Kaciras 博客的 Node 本地扩展，包含：
 安装前需要配置编译环境，详见 [https://github.com/nodejs/node-gyp#installation](https://github.com/nodejs/node-gyp#installation)
 
 ```shell script
-yarn add  
+yarn add git://github.com/kaciras-blog/nativelib#v0.1.0
 ```
 
 # 用法
