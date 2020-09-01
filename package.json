@@ -1,15 +1,26 @@
 {
-	"name": "xxhash-native",
+	"name": "@kaciras-blog/nativelib",
 	"version": "1.0.0",
-	"description": "",
-	"license": "ISC",
-	"author": "",
+	"description": "Node.js native addon for kaciras blog",
+	"license": "MIT",
+	"author": "Kaciras <Kaciras@protonmail.com>",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kaciras-blog/nativelib"
+	},
 	"main": "index.js",
+	"types": "index.d.ts",
+	"engines": {
+		"node": ">=14"
+	},
+	"keywords": [
+		"xxhash",
+		"xxhash3"
+	],
 	"scripts": {
-		"build": "node-gyp build",
+		"install": "node-gyp rebuild --ensure",
 		"test": "jest"
 	},
-	"keywords": [],
 	"dependencies": {
 		"nan": "^2.14.1"
 	},
