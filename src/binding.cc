@@ -5,6 +5,7 @@
 #include <node.h>
 #include <nan.h>
 #include <node_buffer.h>
+#include <utils.h>
 
 namespace XXHash {
 	using v8::ObjectTemplate;
@@ -12,16 +13,6 @@ namespace XXHash {
 	using v8::Number;
 	using v8::Function;
 	using v8::Context;
-
-	/*
-	 * 由两个字符串来组装函数的名字，返回 internalized string。
-	 */
-	Local<String> GetName(Isolate* isolate, const char* type, const char* version) {
-		ostringstream stream;
-		stream << type << version;
-		auto name = String::NewFromUtf8(isolate, stream.str().c_str(), NewStringType::kInternalized);
-		return name.ToLocalChecked();
-	}
 
 	template<typename XXHashClass>
 	class XXHashTemplate {
@@ -41,7 +32,7 @@ namespace XXHash {
 
 			// 定义一个类（也是函数），使用空函数体
 			auto clazz = FunctionTemplate::New(isolate);
-			clazz->SetClassName(GetName(isolate, "XXHash", version));
+			clazz->SetClassName(JSName(isolate, "XXHash", version));
 			clazz->InstanceTemplate()->SetInternalFieldCount(1);
 
 			// 在这个类的原型上定义几个方法
@@ -54,7 +45,7 @@ namespace XXHash {
 
 			// 定义 createXXH<verion>() 函数并导出
 			auto createHash = FunctionTemplate::New(isolate, New, closure);
-			auto name = GetName(isolate, "createXXH", version);
+			auto name = JSName(isolate, "createXXH", version);
 			createHash->SetClassName(name);
 			createHash->SetLength(1);
 			exports->Set(context, name, createHash->GetFunction(context).ToLocalChecked()).Check();
@@ -65,7 +56,9 @@ namespace XXHash {
 			NODE_SET_METHOD(exports, result.str().c_str(), QuickHash);
 		}
 
-	private:
+		static void CreateStateClass(Local<Context> context) {
+			auto isolate = context->GetIsolate();
+		}
 
 		static XXHashClass* GetState(const FunctionCallbackInfo<Value>& args) {
 			return static_cast<XXHashClass*>(args.This()->GetAlignedPointerFromInternalField(0));
@@ -75,23 +68,63 @@ namespace XXHash {
 			auto context = args.GetIsolate()->GetCurrentContext();
 			auto constructor = args.Data().As<Object>()->GetInternalField(0).As<Function>();
 
-			XXHashClass* state;
+			auto state = new XXHashClass();
 
 			if (args.Length() == 0) {
-				state = new XXHashClass();
+				state->Init();
 			}
-			else if (args[0]->IsNumber()) {
-				auto seed = args[0]->Uint32Value(context).FromJust();
-				state = new XXHashClass(seed);
-			}
-			else {
-				return Nan::ThrowTypeError("Invalid argument");
+			else if (state->Init(context, args[0]).IsNothing()) {
+				return;
 			}
 
 			auto instance = constructor->NewInstance(context).ToLocalChecked();
 			instance->SetAlignedPointerInInternalField(0, state);
 			args.GetReturnValue().Set(instance);
 		}
+
+		static void QuickHash(const FunctionCallbackInfo<Value>& args) {
+			auto isolate = args.GetIsolate();
+			auto context = isolate->GetCurrentContext();
+
+			if (args.Length() == 0) {
+				return Nan::ThrowError("data required");
+			}
+
+			auto maybeData = ParseInput(isolate, args[0], encoding::UTF8);
+			if (maybeData.IsNothing()) {
+				return;
+			}
+
+			auto data = maybeData.FromJust().get();
+			Local<Value> returnValue;
+
+			if (args.Length() == 1) {
+				auto sum = XXHashClass::Digest(data);
+				returnValue = ToBuffer(isolate, sum);
+			}
+			else if (args.Length() > 2) {
+				auto sum = XXHashClass::Digest(data, context, args[1]);
+				if (sum.IsNothing()) {
+					return;
+				}
+				returnValue = ToString(sum.FromJust(), args[2]);
+			}
+			else if (args[1]->IsString()) {
+				auto sum = XXHashClass::Digest(data);
+				returnValue = ToString(sum, args[1]);
+			}
+			else {
+				auto sum = XXHashClass::Digest(data, context, args[1]);
+				if (sum.IsNothing()) {
+					return;
+				}
+				returnValue = ToBuffer(isolate, sum.FromJust());
+			}
+
+			args.GetReturnValue().Set(returnValue);
+		}
+
+		// =========================== interface XXHash ===========================
 
 		static void Copy(const FunctionCallbackInfo<Value>& args) {
 			auto isolate = args.GetIsolate();
@@ -109,86 +142,55 @@ namespace XXHash {
 		}
 
 		static void Update(const FunctionCallbackInfo<Value>& args) {
+			auto isolate = args.GetIsolate();
+			auto data = v8::Nothing<shared_ptr<InputData>>();
+
 			if (args.Length() == 0) {
 				return Nan::ThrowError("Argument required");
 			}
 
-			auto isolate = args.GetIsolate();
-			auto input = args[0];
-			shared_ptr<InputData> data;
-
-			if (Buffer::HasInstance(input)) {
-				data = ParseBuffer(input);
-			}
-			else if (input->IsString()) {
-				encoding enc;
-
-				if (args.Length() < 2) {
-					enc = encoding::UTF8;
-				}
-				else {
-					enc = node::ParseEncoding(isolate, args[1], static_cast<encoding>(-1));
-				}
-
-				if (enc == -1) {
-					return Nan::ThrowError("Invalid encoding");
-				}
-
-				data = ParseString(isolate, input, enc);
+			if (args.Length() > 1) {
+				data = ParseInput(isolate, args[0], args[1]);
 			}
 			else {
-				return Nan::ThrowTypeError("data must be string or buffer");
+				data = ParseInput(isolate, args[0], encoding::UTF8);
 			}
 
-			GetState(args)->update(data.get());
+			if (data.IsNothing()) {
+				return;
+			}
+			GetState(args)->Update(data.FromJust().get());
 			args.GetReturnValue().Set(args.This());
 		}
 
 		static void Digest(const FunctionCallbackInfo<Value>& args) {
-			SetDigestOutput(GetState(args)->digest(), args, 0);
-		}
+			auto sum = GetState(args)->Digest();
+			Local<Value> returnVal;
 
-		static void QuickHash(const FunctionCallbackInfo<Value>& args) {
 			if (args.Length() == 0) {
-				return Nan::ThrowError("data required");
+				returnVal = ToBuffer(args.GetIsolate(), sum);
 			}
-
-			shared_ptr<InputData> data;
-			auto input = args[0];
-
-			if (Buffer::HasInstance(input)) {
-				data = ParseBuffer(input);
-			}
-			else if (input->IsString()) {
-				data = ParseString(args.GetIsolate(), input, encoding::UTF8);
-			}
-			else {
-				return Nan::ThrowTypeError("data must be string or buffer");
-			}
-
-			SetDigestOutput(XXHashClass::digest(data.get()), args, 1);
-		}
-
-		static void SetDigestOutput(
-			typename XXHashClass::Sum sum,
-			const FunctionCallbackInfo<Value>& args,
-			int i
-		) {
-			Local<Value> rv;
-
-			if (args.Length() == i) {
-				rv = Buffer::New(args.GetIsolate(), sizeof(sum)).ToLocalChecked();
-				*reinterpret_cast<typename XXHashClass::Sum*>(node::Buffer::Data(rv)) = sum;
-			}
-			else if (args[i]->IsString()) {
-				auto output = reinterpret_cast<char*>(sum.digest);
-				rv = EncodeDigest(output, sizeof(sum), args[i].As<String>());
+			else if (args[0]->IsString()) {
+				returnVal = ToString(sum, args[0]);
 			}
 			else {
 				return Nan::ThrowTypeError("encoding argument must be an string");
 			}
 
-			args.GetReturnValue().Set(rv);
+			args.GetReturnValue().Set(returnVal);
+		}
+
+		// ========================= Helper Functions =========================
+
+		static Local<Value> ToBuffer(Isolate* isolate, typename XXHashClass::Sum sum) {
+			auto buffer = new char[sizeof(sum)];
+			*reinterpret_cast<typename XXHashClass::Sum*>(buffer) = sum;
+			return Buffer::New(isolate, buffer, sizeof(sum)).ToLocalChecked();
+		}
+
+		static Local<Value> ToString(typename XXHashClass::Sum sum, Local<Value> encVal) {
+			auto output = reinterpret_cast<char*>(sum.digest);
+			return EncodeDigest(output, sizeof(sum), encVal.As<String>());
 		}
 	};
 

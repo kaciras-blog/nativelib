@@ -71,18 +71,36 @@ namespace XXHash {
 		}
 	}
 
-	shared_ptr<InputData> ParseString(Isolate* isolate, Local<Value> input, encoding encoding) {
-		auto len = node::DecodeBytes(isolate, input, encoding);
-		auto buffer = new char[len];
-		node::DecodeWrite(isolate, buffer, len, input, encoding);
-		return make_shared<InputData>(buffer, len, true);
+	Maybe<shared_ptr<InputData>> ParseInput(Isolate* isolate, Local<Value> input, Local<Value> encVal) {
+		auto enc = node::ParseEncoding(isolate, encVal, static_cast<encoding>(-1));
+		if (enc == -1) {
+			Nan::ThrowError("Invalid encoding");
+			return v8::Nothing<shared_ptr<InputData>>();
+		}
+		return ParseInput(isolate, input, enc);
 	}
 
-	// Buffer::Data 返回底层数据，无复制，所以用完也不能删
-	shared_ptr<InputData> ParseBuffer(Local<Value> input) {
-		auto len = Buffer::Length(input);
-		auto buffer = Buffer::Data(input);
-		return make_shared<InputData>(buffer, len, false);
+	Maybe<shared_ptr<InputData>> ParseInput(Isolate* isolate, Local<Value> input, encoding enc) {
+		shared_ptr<InputData> data;
+
+		// Buffer::Data 返回底层数据，无复制，所以用完也不能删
+		if (Buffer::HasInstance(input)) {
+			auto buffer = Buffer::Data(input);
+			auto len = Buffer::Length(input);
+			data = make_shared<InputData>(buffer, len, false);
+		}
+		else if (input->IsString()) {
+			auto len = node::DecodeBytes(isolate, input, enc);
+			auto buffer = new char[len];
+			node::DecodeWrite(isolate, buffer, len, input, enc);
+			data = make_shared<InputData>(buffer, len, true);
+		}
+		else {
+			Nan::ThrowTypeError("data must be string or buffer");
+			return v8::Nothing<shared_ptr<InputData>>();
+		}
+
+		return v8::Just<shared_ptr<InputData>>(data);
 	}
 
 	/*

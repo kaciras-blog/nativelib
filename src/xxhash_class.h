@@ -8,6 +8,7 @@
 // 把 xxHash 的函数封装成类，避免跟 v8 相关的代码混在一起。
 // 另一个原因是 xxHash 每个变体都有至少9个相关的函数，全写进模板太长了难看，用类封装下就只用写两个。
 namespace XXHash {
+	using v8::Context;
 
 	class XXHash32Wrapper {
 	private:
@@ -15,15 +16,18 @@ namespace XXHash {
 	public:
 		typedef XXH32_canonical_t Sum;
 
+		XXHash32Wrapper() = default;
 		explicit XXHash32Wrapper(XXHash32Wrapper* src);
-		XXHash32Wrapper();
-		XXHash32Wrapper(XXH32_hash_t seed);
 		~XXHash32Wrapper();
 
-		void update(InputData* input);
-		Sum digest();
+		void Init();
+		Maybe<void> Init(Local<Context> context, Local<Value> seed);
 
-		static Sum digest(InputData* input);
+		void Update(InputData* input);
+		XXH32_canonical_t Digest();
+
+		static XXH32_canonical_t Digest(InputData* input);
+		static Maybe<XXH32_canonical_t> Digest(InputData* input, Local<Context> context, Local<Value> seed);
 	};
 
 	class XXHash64Wrapper {
@@ -32,15 +36,18 @@ namespace XXHash {
 	public:
 		typedef XXH64_canonical_t Sum;
 
+		XXHash64Wrapper() = default;
 		explicit XXHash64Wrapper(XXHash64Wrapper* src);
-		XXHash64Wrapper();
-		XXHash64Wrapper(XXH64_hash_t seed);
 		~XXHash64Wrapper();
 
-		void update(InputData* input);
-		Sum digest();
+		void Init();
+		Maybe<void> Init(Local<Context> context, Local<Value> seed);
 
-		static Sum digest(InputData* input);
+		void Update(InputData* input);
+		XXH64_canonical_t Digest();
+
+		static XXH64_canonical_t Digest(InputData* input);
+		static Maybe<XXH64_canonical_t> Digest(InputData* input, Local<Context> context, Local<Value> seed);
 	};
 
 	class XXHash3_64Wrapper {
@@ -49,15 +56,18 @@ namespace XXHash {
 	public:
 		typedef XXH64_canonical_t Sum;
 
+		XXHash3_64Wrapper() = default;
 		explicit XXHash3_64Wrapper(XXHash3_64Wrapper* src);
-		XXHash3_64Wrapper();
-		XXHash3_64Wrapper(XXH64_hash_t seed);
 		~XXHash3_64Wrapper();
-		
-		void update(InputData* input);
-		Sum digest();
 
-		static Sum digest(InputData* input);
+		void Init();
+		Maybe<void> Init(Local<Context> context, Local<Value> seed);
+
+		void Update(InputData* input);
+		XXH64_canonical_t Digest();
+
+		static XXH64_canonical_t Digest(InputData* input);
+		static Maybe<XXH64_canonical_t> Digest(InputData* input, Local<Context> context, Local<Value> seed);
 	};
 
 	class XXHash3_128Wrapper {
@@ -66,14 +76,17 @@ namespace XXHash {
 	public:
 		typedef XXH128_canonical_t Sum;
 
+		XXHash3_128Wrapper() = default;
 		explicit XXHash3_128Wrapper(XXHash3_128Wrapper* src);
-		XXHash3_128Wrapper();
-		XXHash3_128Wrapper(XXH64_hash_t seed);
 		~XXHash3_128Wrapper();
 
-		void update(InputData* input);
-		Sum digest();
+		void Init();
+		Maybe<void> Init(Local<Context> context, Local<Value> seed);
 
-		static Sum digest(InputData* input);
+		void Update(InputData* input);
+		XXH128_canonical_t Digest();
+
+		static XXH128_canonical_t Digest(InputData* input);
+		static Maybe<XXH128_canonical_t> Digest(InputData* input, Local<Context> context, Local<Value> seed);
 	};
 }

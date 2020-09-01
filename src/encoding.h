@@ -11,6 +11,7 @@ namespace XXHash {
 	using v8::FunctionCallbackInfo;
 	using v8::Isolate;
 	using v8::Local;
+	using v8::Maybe;
 	using v8::Object;
 	using v8::String;
 	using v8::Value;
@@ -32,16 +33,13 @@ namespace XXHash {
 	};
 
 	/*
-	 * 解析输入的JS字符串，返回需要传递给 hash 函数的数据。
+	 * 解析输入的 JS 值，返回需要传递给 hash 函数的数据。
 	 *
 	 * 搞个智能指针玩玩比毕竟以前没用过，其实不用也行。
 	 */
-	shared_ptr<InputData> ParseString(Isolate* isolate, Local<Value> input, encoding encoding);
+	Maybe<shared_ptr<InputData>> ParseInput(Isolate* isolate, Local<Value> input, encoding enc);
 
-	/*
-	 * 从 Buffer 对象获取数据，注意调用前先用 Buffer::HasInstance 检查
-	 */
-	shared_ptr<InputData> ParseBuffer(Local<Value> input);
+	Maybe<shared_ptr<InputData>> ParseInput(Isolate* isolate, Local<Value> input, Local<Value> encoding);
 
 	Local<Value> EncodeDigest(const char* digest, size_t size, Local<String> outType);
 }
