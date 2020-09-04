@@ -8,7 +8,7 @@
 				"src/encoding.cc"
 			],
 			"include_dirs": [
-				"xxHash",
+				"deps/xxHash",
 				"src",
 				"<!(node -e \"require('nan')\")"
 			]
