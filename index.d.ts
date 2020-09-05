@@ -68,12 +68,11 @@ export const createXXH3_128: SecretXXHashFactory;
 //                       下面是无状态函数，直接计算结果
 // =============================================================================
 
-
 interface XXHashFunction {
 
 	/**
-	 * 不支持指定输入编码因为会跟 XXHashOutEncoding 混淆，若是 string 则使用 utf8 编码。
-	 * 若要需要不同的编码可以使用 Buffer.from(str, "utf16")。
+	 * 不支持指定输入编码因为会跟 OutputEncoding 混淆，string 使用 utf8 编码。
+	 * 若需要不同的编码可以使用 Buffer.from
 	 */
 	(data: InputData): Buffer;
 
