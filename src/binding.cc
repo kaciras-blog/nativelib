@@ -16,13 +16,13 @@ namespace XXHash {
 	using v8::Persistent;
 	using v8::External;
 
-	template<typename XXHashClass>
-	struct TP {
+	template<class XXHashClass>
+	struct XXHashBinding {
 		XXHashClass* state;
 		Persistent<Object> handle;
 	};
 
-	template<typename XXHashClass>
+	template<class XXHashClass>
 	class XXHashTemplate {
 	public:
 
@@ -68,10 +68,10 @@ namespace XXHash {
 			auto isolate = context->GetIsolate();
 		}
 
-		static void DisposeState(const v8::WeakCallbackInfo<TP<XXHashClass>>& data) {
-			auto tp = data.GetParameter();
-			delete tp->state;
-			tp->handle.Reset();
+		static void DisposeState(const v8::WeakCallbackInfo<XXHashBinding<XXHashClass>>& data) {
+			auto binding = data.GetParameter();
+			delete binding->state;
+			binding->handle.Reset();
 		}
 
 		static void SetState(Local<Object> object, XXHashClass* state) {
@@ -79,15 +79,17 @@ namespace XXHash {
 
 			object->SetAlignedPointerInInternalField(0, state);
 
-			auto tp = new TP<XXHashClass>();
-			tp->state = state;
-			tp->handle.Reset(isolate, object);
-			tp->handle.SetWeak(tp, DisposeState, v8::WeakCallbackType::kParameter);
+			auto binding = new XXHashBinding<XXHashClass>();
+			binding->state = state;
+			binding->handle.Reset(isolate, object);
+			binding->handle.SetWeak(binding, DisposeState, v8::WeakCallbackType::kParameter);
 		}
 
 		static XXHashClass* GetState(const FunctionCallbackInfo<Value>& args) {
 			return static_cast<XXHashClass*>(args.This()->GetAlignedPointerFromInternalField(0));
 		}
+
+		// =========================== Enter Points ===========================
 
 		static void New(const FunctionCallbackInfo<Value>& args) {
 			auto context = args.GetIsolate()->GetCurrentContext();

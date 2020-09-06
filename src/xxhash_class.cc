@@ -22,14 +22,14 @@ namespace XXHash {
 		return canonical_sum;
 	}
 
-	Maybe<void> CheckSecretSize(size_t size) {
-		if (size < XXH3_SECRET_SIZE_MIN) {
-			ostringstream message;
-			message << "secret must be at least " << XXH3_SECRET_SIZE_MIN << " bytes";
-			Nan::ThrowError(message.str().c_str());
-			return v8::Nothing<void>();
+	bool CheckSecretSize(size_t size) {
+		if (size >= XXH3_SECRET_SIZE_MIN) {
+			return true;
 		}
-		return v8::JustVoid();
+		ostringstream message;
+		message << "secret must be at least " << XXH3_SECRET_SIZE_MIN << " bytes";
+		Nan::ThrowError(message.str().c_str());
+		return false;
 	}
 
 	// ========================== XXHash 32bit ==========================
@@ -156,7 +156,7 @@ namespace XXHash {
 			auto secret = Buffer::Data(seed);
 			auto len = Buffer::Length(seed);
 
-			if (CheckSecretSize(len).IsNothing()) {
+			if (!CheckSecretSize(len)) {
 				return v8::Nothing<void>();
 			}
 
@@ -192,7 +192,7 @@ namespace XXHash {
 			auto secret = Buffer::Data(seed);
 			auto len = Buffer::Length(seed);
 
-			if (CheckSecretSize(len).IsNothing()) {
+			if (!CheckSecretSize(len)) {
 				return v8::Nothing<XXH64_canonical_t>();
 			}
 
@@ -230,7 +230,7 @@ namespace XXHash {
 			auto secret = Buffer::Data(seed);
 			auto len = Buffer::Length(seed);
 
-			if (CheckSecretSize(len).IsNothing()) {
+			if (!CheckSecretSize(len)) {
 				return v8::Nothing<void>();
 			}
 
@@ -266,7 +266,7 @@ namespace XXHash {
 			auto secret = Buffer::Data(seed);
 			auto len = Buffer::Length(seed);
 
-			if (CheckSecretSize(len).IsNothing()) {
+			if (!CheckSecretSize(len)) {
 				return v8::Nothing<XXH128_canonical_t>();
 			}
 

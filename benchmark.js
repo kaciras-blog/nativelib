@@ -22,18 +22,22 @@ function murmurHash3_sync() {
 }
 
 function xxHash32() {
-	return binding.xxHash32(buffer, "base64u");
+	return binding.createXXH32().update(buffer).digest("base64u");
 }
 
 function xxHash64() {
-	return binding.xxHash64(buffer, "base64u");
+	return binding.createXXH64().update(buffer).digest("base64u");
 }
 
 function xxHash3_64() {
-	return binding.xxHash3_64(buffer, "base64u");
+	return binding.createXXH3_64().update(buffer).digest("base64u");
 }
 
 function xxHash3_128() {
+	return binding.createXXH3_128().update(buffer).digest("base64u");
+}
+
+function quickXXHash3_128() {
 	return binding.xxHash3_128(buffer, "base64u");
 }
 
@@ -60,6 +64,7 @@ test(xxHash32);
 test(xxHash64);
 test(xxHash3_64);
 test(xxHash3_128);
+test(quickXXHash3_128);
 
 test(sha2_256);
 test(md5);
