@@ -17,3 +17,6 @@ node_modules
 *.njsproj
 *.sln
 *.sw*
+
+# Temporary files
+/temp.js
