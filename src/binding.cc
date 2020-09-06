@@ -13,6 +13,14 @@ namespace XXHash {
 	using v8::Number;
 	using v8::Function;
 	using v8::Context;
+	using v8::Persistent;
+	using v8::External;
+
+	template<typename XXHashClass>
+	struct TP {
+		XXHashClass* state;
+		Persistent<Object> handle;
+	};
 
 	template<typename XXHashClass>
 	class XXHashTemplate {
@@ -60,6 +68,23 @@ namespace XXHash {
 			auto isolate = context->GetIsolate();
 		}
 
+		static void DisposeState(const v8::WeakCallbackInfo<TP<XXHashClass>>& data) {
+			auto tp = data.GetParameter();
+			delete tp->state;
+			tp->handle.Reset();
+		}
+
+		static void SetState(Local<Object> object, XXHashClass* state) {
+			auto isolate = object->GetIsolate();
+
+			object->SetAlignedPointerInInternalField(0, state);
+
+			auto tp = new TP<XXHashClass>();
+			tp->state = state;
+			tp->handle.Reset(isolate, object);
+			tp->handle.SetWeak(tp, DisposeState, v8::WeakCallbackType::kParameter);
+		}
+
 		static XXHashClass* GetState(const FunctionCallbackInfo<Value>& args) {
 			return static_cast<XXHashClass*>(args.This()->GetAlignedPointerFromInternalField(0));
 		}
@@ -78,7 +103,7 @@ namespace XXHash {
 			}
 
 			auto instance = constructor->NewInstance(context).ToLocalChecked();
-			instance->SetAlignedPointerInInternalField(0, state);
+			SetState(instance, state);
 			args.GetReturnValue().Set(instance);
 		}
 
@@ -136,8 +161,7 @@ namespace XXHash {
 			auto constructor = args.This()->Get(context, name).ToLocalChecked().As<Function>();
 
 			auto instance = constructor->NewInstance(context).ToLocalChecked();
-			instance->SetAlignedPointerInInternalField(0, stateCopy);
-
+			SetState(instance, stateCopy);
 			args.GetReturnValue().Set(instance);
 		}
 
