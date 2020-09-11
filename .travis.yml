@@ -9,16 +9,22 @@ git:
 
 jobs:
   include:
-    - os: linux
+    - os: windows
+      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
       before_install:
-        - apt install build-essential
+        - choco install python
         - npm install -g node-gyp
       install: npm install --build-from-source
       script: npm run test
 
-    - os: windows
+    - os: linux
+      addons:
+        apt:
+          update: true
+          packages:
+            - build-essential
+
       before_install:
-        - npm install --global --production windows-build-tools
         - npm install -g node-gyp
       install: npm install --build-from-source
       script: npm run test
