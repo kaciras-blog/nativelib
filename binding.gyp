@@ -4,8 +4,9 @@
 			"target_name": "binding",
 			"sources": [
 				"src/binding.cc",
-				"src/xxhash_class.cc",
-				"src/encoding.cc"
+				"src/encoding.cc",
+				"src/xxhash_api.cc",
+				"src/xxhashes.cc"
 			],
 			"include_dirs": [
 				"deps/xxHash",

@@ -55,6 +55,7 @@ interface SecretXXHashFactory extends XXHashFactory {
 	 * xxHash3 要求密钥至少有 136 bytes。
 	 *
 	 * @param secret 密钥
+	 * @throws 如果密钥的长度不足 136 字节
 	 */
 	(secret: Buffer): XXHash;
 }
