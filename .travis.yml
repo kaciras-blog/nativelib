@@ -13,15 +13,16 @@ git:
 jobs:
   include:
     - os: windows
+      filter_secrets: true
       env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
       before_install:
         - choco install python
         - npm install -g node-gyp
-      install: npm ci --build-from-source
 
     - os: linux
       before_install: npm install -g node-gyp
-      install: npm ci --build-from-source
+
+install: npm ci --build-from-source
 
 deploy:
   skip_cleanup: true
