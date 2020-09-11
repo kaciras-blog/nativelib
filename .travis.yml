@@ -14,20 +14,11 @@ jobs:
       before_install:
         - choco install python
         - npm install -g node-gyp
-      install: npm install --build-from-source
-      script: npm run test
+      install: npm ci --build-from-source
 
     - os: linux
-      addons:
-        apt:
-          update: true
-          packages:
-            - build-essential
-
-      before_install:
-        - npm install -g node-gyp
-      install: npm install --build-from-source
-      script: npm run test
+      before_install: npm install -g node-gyp
+      install: npm ci --build-from-source
 
 deploy:
   provider: script
