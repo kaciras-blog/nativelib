@@ -13,7 +13,6 @@ git:
 jobs:
   include:
     - os: windows
-      filter_secrets: true
       env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
       before_install:
         - choco install python
@@ -27,6 +26,6 @@ install: npm ci --build-from-source
 deploy:
   skip_cleanup: true
   provider: script
-  script: npm run upload-ci $prebuild_upload
+  script: echo %prebuild_upload% && npm run upload-ci
   on:
     tags: true
