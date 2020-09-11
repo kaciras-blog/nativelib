@@ -5,8 +5,7 @@
 			"sources": [
 				"src/binding.cc",
 				"src/encoding.cc",
-				"src/xxhash_api.cc",
-				"src/xxhashes.cc"
+				"src/xxhash_class.cc"
 			],
 			"include_dirs": [
 				"deps/xxHash",

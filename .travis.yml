@@ -1,0 +1,30 @@
+if: branch = master
+
+language: node_js
+node_js: 14
+
+git:
+  depth: false
+  quiet: true
+
+jobs:
+  include:
+    - os: linux
+      before_install:
+        - apt install build-essential
+        - npm install -g node-gyp
+      install: npm install --build-from-source
+      script: npm run test
+
+    - os: windows
+      before_install:
+        - npm install --global --production windows-build-tools
+        - npm install -g node-gyp
+      install: npm install --build-from-source
+      script: npm run test
+
+deploy:
+  provider: script
+  script: npm run upload-ci
+  on:
+    tags: true
