@@ -26,6 +26,6 @@ jobs:
 deploy:
   skip_cleanup: true
   provider: script
-  script: npm run upload-ci
+  script: npm run upload-ci $prebuild_upload
   on:
     tags: true
