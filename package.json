@@ -20,7 +20,7 @@
 	"scripts": {
 		"install": "prebuild-install || node-gyp rebuild --ensure",
 		"test": "jest",
-		"upload-ci": "prebuild -u $GITHUB_TOKEN"
+		"upload-ci": "prebuild -u"
 	},
 	"dependencies": {
 		"nan": "^2.14.1",
