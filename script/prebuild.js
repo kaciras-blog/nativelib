@@ -69,9 +69,9 @@ function download() {
 	request.on("error", handleError).end();
 }
 
-if (process.execArgv.includes("-install")) {
+if (process.argv.includes("-install")) {
 	download();
-} else if (process.execArgv.includes("-pack")) {
+} else if (process.argv.includes("-pack")) {
 	pack();
 } else {
 	console.error("Argument required: -install or -pack");
