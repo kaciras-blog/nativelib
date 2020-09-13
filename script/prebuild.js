@@ -18,6 +18,9 @@ function handleError(error) {
 	process.exit(2);
 }
 
+/**
+ * 获取当前环境下的压缩包名，跟 prebuild 的一致。
+ */
 function getPackageName() {
 	const name = packageJson.name.split("/").pop();
 	const { version } = packageJson;
@@ -40,6 +43,10 @@ function getGithubRelease() {
 	return `https://${match[0]}/releases/download/v${version}`.replace(/\.git$/, "");
 }
 
+/**
+ * 打包编译好的二进制文件，并使用 brotli 算法压缩（brotli 比 gzip 压缩率高20%）。
+ * 注意本命令只打包，不负责编译和上传，这两个步骤需要 CI 来完成。
+ */
 function pack() {
 	fs.rmdirSync("prebuilds", { recursive: true });
 	fs.mkdirSync("prebuilds");
@@ -52,6 +59,9 @@ function pack() {
 		.pipe(fs.createWriteStream(`prebuilds/${getPackageName()}`));
 }
 
+/**
+ * 从 GitHub Release 上下载预编译好的文件并解压。
+ */
 function download() {
 	const url = `${getGithubRelease()}/${getPackageName()}`;
 	const request = https.get(url);

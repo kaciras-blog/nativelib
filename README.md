@@ -1,5 +1,7 @@
 Kaciras 博客的 Node 本地扩展，包含了一些需要在底层实现的功能。
 
+[![Build Status](https://travis-ci.org/kaciras-blog/nativelib.svg?branch=master)](https://travis-ci.org/kaciras-blog/nativelib)
+
 ## xxHash
 
 [xxHash](https://github.com/Cyan4973/xxHash) 是一个非加密 Hash 函数系列，拥有很快的运算速度。
@@ -8,11 +10,11 @@ Kaciras 博客的 Node 本地扩展，包含了一些需要在底层实现的功
 
 # 安装
 
-安装前需要配置编译环境，详见 [https://github.com/nodejs/node-gyp#installation](https://github.com/nodejs/node-gyp#installation)
-
 ```shell script
-yarn add git://github.com/kaciras-blog/nativelib#v0.1.1
+yarn add git://github.com/kaciras-blog/nativelib#v0.2.1 [--no-prebuild]
 ```
+
+默认情况将从 GitHub Release 上下载编译好的二进制文件，如果需要自己编译请添加`--no-prebuild`参数。
 
 # 用法
 
@@ -36,3 +38,5 @@ const { xxHash3_128 } = require("xxhash-native");
 console.log(xxHash3_128("xxhash", "base64u"));
 // nItDfHjKwAo3YHLiS_300g==
 ```
+
+xxHash 算法非常快，故没有提供异步的版本。
