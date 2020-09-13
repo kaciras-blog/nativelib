@@ -22,13 +22,14 @@ jobs:
       before_install: npm install -g node-gyp
 
 install: npm ci --build-from-source
-after_success: npm run prebuild-package
+
+after_success: node script/prebuild.js -pack
 
 deploy:
   skip_cleanup: true
   provider: releases
-  api_key: $prebuild_upload
+  api_key: $GITHUB_TOKEN
   file_glob: true
-  file: prebuilds/@kaciras-blog/*
+  file: prebuilds/*
   on:
     tags: true

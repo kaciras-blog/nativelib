@@ -18,13 +18,14 @@
 		"xxhash3"
 	],
 	"scripts": {
-		"install": "prebuild-install || node-gyp rebuild --ensure",
-		"test": "jest",
-		"prebuild-package": "prebuild"
+		"install": "script/prebuild.js - install || node-gyp rebuild --ensure",
+		"lint": "eslint --fix --ext .js .",
+		"test": "jest"
 	},
 	"dependencies": {
 		"nan": "^2.14.1",
-		"prebuild-install": "^5.3.5"
+		"prebuild-install": "^5.3.5",
+		"tar-fs": "^2.1.0"
 	},
 	"devDependencies": {
 		"eslint": "^7.8.1",
