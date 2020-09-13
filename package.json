@@ -18,7 +18,7 @@
 		"xxhash3"
 	],
 	"scripts": {
-		"install": "script/prebuild.js - install || node-gyp rebuild --ensure",
+		"install": "script/prebuild.js install || node-gyp rebuild --ensure",
 		"lint": "eslint --fix --ext .js .",
 		"test": "jest"
 	},

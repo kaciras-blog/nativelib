@@ -69,9 +69,11 @@ function download() {
 	request.on("error", handleError).end();
 }
 
-if (process.argv.includes("-install")) {
+if (process.argv.includes("--no-prebuild")) {
+	// skip install prebuild on CI
+} else if (process.argv.includes("install")) {
 	download();
-} else if (process.argv.includes("-pack")) {
+} else if (process.argv.includes("pack")) {
 	pack();
 } else {
 	console.error("Argument required: -install or -pack");

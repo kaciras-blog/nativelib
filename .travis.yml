@@ -21,9 +21,9 @@ jobs:
     - os: linux
       before_install: npm install -g node-gyp
 
-install: npm ci --build-from-source
+install: npm ci --no-prebuild
 
-after_success: node script/prebuild.js -pack
+after_success: node script/prebuild.js pack
 
 deploy:
   skip_cleanup: true
