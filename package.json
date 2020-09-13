@@ -1,6 +1,6 @@
 {
 	"name": "@kaciras-blog/nativelib",
-	"version": "0.1.7",
+	"version": "0.1.9",
 	"description": "Node.js native addon for kaciras blog",
 	"license": "MIT",
 	"author": "Kaciras <Kaciras@protonmail.com>",
@@ -23,6 +23,7 @@
 		"test": "jest"
 	},
 	"dependencies": {
+		"follow-redirects": "^1.13.0",
 		"nan": "^2.14.1",
 		"prebuild-install": "^5.3.5",
 		"tar-fs": "^2.1.0"

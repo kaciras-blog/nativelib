@@ -5,8 +5,8 @@
  */
 const { join } = require("path");
 const fs = require("fs");
-const https = require("https");
 const zlib = require("zlib");
+const { https } = require("follow-redirects");
 const tar = require("tar-fs");
 const packageJson = require("../package.json");
 
@@ -19,12 +19,13 @@ function handleError(error) {
 }
 
 function getPackageName() {
+	const name = packageJson.name.split("/").pop();
 	const { version } = packageJson;
 	const runtime = "node";
 	const abi = process.versions.modules;
 	const { platform, arch } = process;
 
-	return `prebuild-v${version}-${runtime}-v${abi}-${platform}-${arch}.tar.br`;
+	return `${name}-v${version}-${runtime}-v${abi}-${platform}-${arch}.tar.gz`;
 }
 
 function getGithubRelease() {
@@ -53,15 +54,15 @@ function pack() {
 
 function download() {
 	const url = `${getGithubRelease()}/${getPackageName()}`;
-	const request = https.get(url);
+	const request = https.get(url, { followAllRedirects: true });
 
 	request.on("response", response => {
 		if (response.statusCode !== 200) {
-			console.error(`GitHub 上找不到预编译的文件：${url}`);
+			console.error(`无法从 GitHub 下载预编译的文件：${url}`);
 			process.exit(3);
 		}
 		response
-			.pipe(zlib.createBrotliDecompress())
+			.pipe(zlib.createUnzip())
 			.pipe(tar.extract("."));
 	});
 
