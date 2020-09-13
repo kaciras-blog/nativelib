@@ -6,12 +6,11 @@ test.each([
 	null,
 	"string",
 	{},
-])
-('should throw error on invalid seed %#', (seed) => {
+])("should throw error on invalid seed %#", (seed) => {
 	expect(() => binding.createXXH3_64(seed)).toThrowError();
 });
 
-it('should throw error on update without data', () => {
+it("should throw error on update without data", () => {
 	expect(() => binding.createXXH3_64().update()).toThrowError();
 });
 
@@ -27,28 +26,27 @@ test.each([
 	["xxhash", "latin1"],
 	["xxhash", "binary"],
 	["28efbfa3ceb52823efbfa329e29886", "hex"],
-])
-('should update %s with encoding %s', (text, encoding) => {
+])("should update %s with encoding %s", (text, encoding) => {
 	const fromString = binding.createXXH3_64().update(text, encoding);
 	const fromBuffer = binding.createXXH3_64().update(Buffer.from(text, encoding));
 	expect(fromString).toStrictEqual(fromBuffer);
 });
 
-it('should throw error on digest without data', () => {
+it("should throw error on digest without data", () => {
 	expect(() => binding.xxHash3_64()).toThrowError();
 });
 
 const invalidDataTest = test.each([undefined, null, 123456, {}]);
 
-invalidDataTest('should throw error on update with %s', data => {
+invalidDataTest("should throw error on update with %s", data => {
 	expect(() => binding.createXXH3_64().update(data)).toThrowError();
 });
 
-invalidDataTest('should throw error on digest with %s', data => {
+invalidDataTest("should throw error on digest with %s", data => {
 	expect(() => binding.xxHash3_64(data)).toThrowError();
 });
 
-it('should decode string in utf8', () => {
+it("should decode string in utf8", () => {
 	const a = binding.xxHash3_64("我好帅");
 	const b = binding.xxHash3_64(Buffer.from("我好帅", "utf8"));
 	expect(a).toStrictEqual(b);
