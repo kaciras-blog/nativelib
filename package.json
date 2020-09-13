@@ -1,6 +1,6 @@
 {
 	"name": "@kaciras-blog/nativelib",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"description": "Node.js native addon for kaciras blog",
 	"license": "MIT",
 	"author": "Kaciras <Kaciras@protonmail.com>",
@@ -18,7 +18,7 @@
 		"xxhash3"
 	],
 	"scripts": {
-		"install": "script/prebuild.js install || node-gyp rebuild --ensure",
+		"install": "node script/prebuild.js install || node-gyp rebuild --ensure",
 		"lint": "eslint --fix --ext .js .",
 		"test": "jest"
 	},
