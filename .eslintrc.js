@@ -12,6 +12,7 @@ module.exports = {
 		"indent": ["error", "tab"],
 		"quotes": ["error", "double", { avoidEscape: true }],
 		"semi": ["error", "always"],
+		"no-unused-vars": ["off"],
 		"linebreak-style": ["error", "unix"],
 	}
 };

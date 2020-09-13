@@ -25,7 +25,7 @@ function getPackageName() {
 	const abi = process.versions.modules;
 	const { platform, arch } = process;
 
-	return `${name}-v${version}-${runtime}-v${abi}-${platform}-${arch}.tar.gz`;
+	return `${name}-v${version}-${runtime}-v${abi}-${platform}-${arch}.tar.br`;
 }
 
 function getGithubRelease() {
@@ -54,7 +54,7 @@ function pack() {
 
 function download() {
 	const url = `${getGithubRelease()}/${getPackageName()}`;
-	const request = https.get(url, { followAllRedirects: true });
+	const request = https.get(url);
 
 	request.on("response", response => {
 		if (response.statusCode !== 200) {
@@ -62,7 +62,7 @@ function download() {
 			process.exit(3);
 		}
 		response
-			.pipe(zlib.createUnzip())
+			.pipe(zlib.createBrotliDecompress())
 			.pipe(tar.extract("."));
 	});
 
