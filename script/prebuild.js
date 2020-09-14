@@ -89,6 +89,6 @@ if (process.argv.includes("--no-prebuild")) {
 } else if (process.argv.includes("pack")) {
 	pack();
 } else {
-	console.error("Argument required: -install or -pack");
+	console.error("Argument required: install or pack");
 	process.exit(1);
 }
