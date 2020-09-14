@@ -1,7 +1,6 @@
 module.exports = {
 	env: {
 		node: true,
-		jest: true,
 		commonjs: true,
 		es2021: true
 	},
@@ -15,5 +14,17 @@ module.exports = {
 		"semi": ["error", "always"],
 		"no-unused-vars": ["off"],
 		"linebreak-style": ["error", "unix"],
-	}
+	},
+	overrides: [
+		{
+			files: ["**/test/*-test.{j,t}s"],
+			env: {
+				jest: true,
+			},
+			extends: [
+				"plugin:jest/style",
+				"plugin:jest/recommended",
+			],
+		},
+	],
 };

@@ -8,7 +8,7 @@ test.each([
 	"foo",
 	"loooooooooooooooooong",
 ])("should throw error on unsupported encoding %#", encoding => {
-	expect(() => binding.xxHash3_128("", encoding)).toThrowError();
+	expect(() => binding.xxHash3_128("", encoding)).toThrow();
 });
 
 test.each([
