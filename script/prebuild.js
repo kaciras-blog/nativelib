@@ -1,7 +1,10 @@
 /*
  * 提供对构建好的二进制文件的打包和从 GitHub 下载功能，该脚本需要配合 Travis CI 使用。
  *
- * prebuild（https://github.com/prebuild/prebuild）用的我各种难受索性自己写一个算了。
+ * 【为什么不用 https://github.com/prebuild/prebuild】
+ * 1）prebuild 把 @xxx/xxx 这样的包名直接用做文件名导致路径错乱。
+ * 2）prebuild 不支持压缩率更高的 brotli 算法。
+ * 3）通过与 CI 整合，自己实现一个也不难，prebuild 功能太多不好用。
  */
 const { join } = require("path");
 const fs = require("fs");
