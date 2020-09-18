@@ -1,7 +1,8 @@
 const { performance } = require("perf_hooks");
 const crypto = require("crypto");
 const { murmurHash128x64 } = require("murmurhash-native");
-const binding = require(".");
+const binding = require("..");
+const wasm = require("../emscripten/wasm");
 
 const buffer = crypto.randomBytes(4 * 1024 * 1024);
 
@@ -41,7 +42,11 @@ function quickXXHash3_128() {
 	return binding.xxHash3_128(buffer, "base64u");
 }
 
-async function test(func) {
+function xxHash3_128Wasm() {
+	return wasm.xxHash3_128(buffer).toString("hex");
+}
+
+function test(func) {
 	let result;
 
 	// warm up
@@ -58,14 +63,21 @@ async function test(func) {
 	console.log(`${(end - start).toFixed(3)} ms`);
 }
 
-test(murmurHash3_sync);
+async function runBenchmarks() {
+	await wasm.ready();
 
-test(xxHash32);
-test(xxHash64);
-test(xxHash3_64);
-test(xxHash3_128);
-test(quickXXHash3_128);
+	test(murmurHash3_sync);
 
-test(sha2_256);
-test(md5);
-test(sha3_256);
+	test(xxHash32);
+	test(xxHash64);
+	test(xxHash3_64);
+	test(xxHash3_128);
+	test(quickXXHash3_128);
+	test(xxHash3_128Wasm);
+
+	test(sha2_256);
+	test(md5);
+	test(sha3_256);
+}
+
+runBenchmarks().catch(e => console.error(e));
