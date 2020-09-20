@@ -1,8 +1,7 @@
-#include <stdio.h>
-#include <emscripten/emscripten.h>
-
 #define XXH_STATIC_LINKING_ONLY
 #define XXH_INLINE_ALL
+
+#include <emscripten/emscripten.h>
 #include <xxhash.h>
 
 EMSCRIPTEN_KEEPALIVE
