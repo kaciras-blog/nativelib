@@ -1,8 +1,17 @@
 const { performance } = require("perf_hooks");
 const crypto = require("crypto");
 const { murmurHash128x64 } = require("murmurhash-native");
-const binding = require("..");
-const wasm = require("../emscripten/wasm");
+const native = require("..");
+const wasm = require("../emscripten/wasm-impl");
+
+/*
+ * 测试一下各种算法，以及两种不同的版本（WASM，Native）的性能。
+ *
+ * 【结论】
+ * xxHash3_128 比 MurMurHash128x64 快 2 倍。
+ * WASM 版 xxHash3_128 比本地二进制版慢 5 倍。
+ * 加密 Hash 比非加密版慢很多，都是 20 倍以上。
+ */
 
 const buffer = crypto.randomBytes(4 * 1024 * 1024);
 
@@ -23,30 +32,30 @@ function murmurHash3_sync() {
 }
 
 function xxHash32() {
-	return binding.createXXH32().update(buffer).digest("base64u");
+	return native.createXXH32().update(buffer).digest("base64u");
 }
 
 function xxHash64() {
-	return binding.createXXH64().update(buffer).digest("base64u");
+	return native.createXXH64().update(buffer).digest("base64u");
 }
 
 function xxHash3_64() {
-	return binding.createXXH3_64().update(buffer).digest("base64u");
+	return native.createXXH3_64().update(buffer).digest("base64u");
 }
 
 function xxHash3_128() {
-	return binding.createXXH3_128().update(buffer).digest("base64u");
+	return native.createXXH3_128().update(buffer).digest("base64u");
 }
 
 function quickXXHash3_128() {
-	return binding.xxHash3_128(buffer, "base64u");
+	return native.xxHash3_128(buffer, "base64u");
 }
 
 function xxHash3_128Wasm() {
-	return wasm.xxHash3_128(buffer).toString("hex");
+	return wasm.xxHash3_128(buffer).toString("base64");
 }
 
-function test(func) {
+function run(func) {
 	let result;
 
 	// warm up
@@ -66,18 +75,18 @@ function test(func) {
 async function runBenchmarks() {
 	await wasm.ready();
 
-	test(murmurHash3_sync);
+	run(murmurHash3_sync);
 
-	test(xxHash32);
-	test(xxHash64);
-	test(xxHash3_64);
-	test(xxHash3_128);
-	test(quickXXHash3_128);
-	test(xxHash3_128Wasm);
+	run(xxHash32);
+	run(xxHash64);
+	run(xxHash3_64);
+	run(xxHash3_128);
+	run(quickXXHash3_128);
+	run(xxHash3_128Wasm);
 
-	test(sha2_256);
-	test(md5);
-	test(sha3_256);
+	run(sha2_256);
+	run(md5);
+	run(sha3_256);
 }
 
 runBenchmarks().catch(e => console.error(e));
