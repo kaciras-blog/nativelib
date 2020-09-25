@@ -20,7 +20,7 @@
 	"scripts": {
 		"install": "node script/prebuild.js install || node-gyp rebuild --ensure",
 		"lint": "eslint --fix --ext .js .",
-		"compile-wasm": "emcc -O2 -s WASM=1 -I deps/xxHash emscripten/xxhash.c deps/xxHash/xxhash.c -o build/wasm.js",
+		"compile-wasm": "emcc -O2 --bind -s MODULARIZE=1 -I deps/xxHash emscripten/xxhash.cpp deps/xxHash/xxhash.c -o build/wasm.js",
 		"test": "jest"
 	},
 	"dependencies": {

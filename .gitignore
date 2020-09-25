@@ -18,6 +18,7 @@ node_modules
 *.njsproj
 *.sln
 *.sw*
+*.vcxproj*
 
 # Temporary files
 /temp.js
