@@ -9,6 +9,7 @@ async function ready() {
 function xxHash3_128(buffer) {
 	return Buffer.from(xxhashWasm.xxHash3_128(buffer));
 }
+
 function xxHash3_128Seed(buffer) {
 	return Buffer.from(xxhashWasm.xxHash3_128_Seed(buffer, 1048573));
 }

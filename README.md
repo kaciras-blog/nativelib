@@ -40,3 +40,7 @@ console.log(xxHash3_128("xxhash", "base64u"));
 ```
 
 xxHash 算法非常快，故没有提供异步的版本。
+
+# WebAssembly
+
+本项目有两种输出格式：本地二进制和 WebAssembly 模块，两者的性能差别见 benchmark

@@ -1,3 +1,10 @@
+/*
+ * emcc 的命令有点长，单独写一个脚本来组装。
+ *
+ * 【用法】
+ * node script/compile-wasm.js [-release]
+ * 默认不加 -release 参数会使用调试模式编译。
+ */
 const { execSync } = require("child_process");
 const { join } = require("path");
 
