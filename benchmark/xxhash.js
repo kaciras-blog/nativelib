@@ -13,7 +13,7 @@ const wasm = require("../emscripten/wasm-impl");
  * 加密 Hash 比非加密版慢很多，都是 20 倍以上。
  */
 
-const buffer = crypto.randomBytes(4 * 1024 * 1024);
+const buffer = crypto.randomBytes(10 * 1024 * 1024);
 
 function md5() {
 	return crypto.createHash("md5").update(buffer).digest("base64");
