@@ -29,6 +29,10 @@ function test() {
 	await ready();
 	test();
 	test();
+
+	if("doLeakCheck" in xxhashWasm) {
+		xxhashWasm.doLeakCheck();
+	}
 })();
 
 module.exports.ready = ready;
