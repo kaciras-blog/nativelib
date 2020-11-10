@@ -24,7 +24,7 @@ jobs:
     - os: linux
       before_install: npm install -g node-gyp
 
-install: npm ci --no-prebuild
+install: npm ci --no-prebuild --no-optional
 
 after_success: node script/prebuild.js pack
 
