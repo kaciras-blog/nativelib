@@ -4,7 +4,10 @@ branches:
     - /^v.*$/
 
 language: node_js
-node_js: 14
+
+node_js:
+  - 14
+  - 15
 
 git:
   depth: false
