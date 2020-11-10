@@ -29,8 +29,8 @@ install: npm ci --no-prebuild
 after_success: node script/prebuild.js pack
 
 deploy:
-  skip_cleanup: true
   provider: releases
+  cleanup: false
   api_key: $GITHUB_TOKEN
   file_glob: true
   file: prebuilds/*
