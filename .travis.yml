@@ -26,6 +26,8 @@ jobs:
 
 install: npm ci --no-prebuild --no-optional
 
+before_script: node-gyp rebuild
+
 after_success: node script/prebuild.js pack
 
 deploy:
