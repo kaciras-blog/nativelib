@@ -71,13 +71,11 @@ function download() {
 		const { statusCode } = response;
 
 		if (statusCode === 404) {
-			console.error(`没有合适的预编译文件：${url}`);
-			process.exit(3);
+			return handleInstallError(`没有合适的预编译文件：${url}`);
+		} else if (statusCode !== 200) {
+			return handleInstallError(`下载失败（${statusCode}）：${url}`);
 		}
-		if (statusCode !== 200) {
-			console.error(`无法从 GitHub 下载预编译的文件（${statusCode}）：${url}`);
-			process.exit(4);
-		}
+
 		response
 			.pipe(zlib.createBrotliDecompress())
 			.pipe(tar.extract("."));
