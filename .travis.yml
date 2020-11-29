@@ -13,6 +13,10 @@ git:
   depth: false
   quiet: true
 
+os:
+  - windows
+  - linux
+
 jobs:
   include:
     - os: windows
