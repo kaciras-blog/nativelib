@@ -6,6 +6,7 @@
  * 2）prebuild 不支持压缩率更高的 brotli 算法。
  * 3）通过与 CI 整合，自己实现一个也不难，prebuild 功能太多不好用。
  */
+const { execSync } = require("child_process");
 const { join } = require("path");
 const fs = require("fs");
 const zlib = require("zlib");
@@ -16,10 +17,7 @@ const packageJson = require("../package.json");
 // 定死工作目录为项目根目录，免得下面老是去组装路径
 process.chdir(join(__dirname, ".."));
 
-function handleError(error) {
-	console.error(error);
-	process.exit(2);
-}
+const [, , COMMAND, ...ARGS] = process.argv;
 
 /**
  * 获取当前环境下的压缩包名，跟 prebuild 的一致。
@@ -70,23 +68,44 @@ function download() {
 	const request = https.get(url);
 
 	request.on("response", response => {
-		if (response.statusCode !== 200) {
-			console.error(`无法从 GitHub 下载预编译的文件：${url}`);
+		const { statusCode } = response;
+
+		if (statusCode === 404) {
+			console.error(`没有合适的预编译文件：${url}`);
 			process.exit(3);
+		}
+		if (statusCode !== 200) {
+			console.error(`无法从 GitHub 下载预编译的文件（${statusCode}）：${url}`);
+			process.exit(4);
 		}
 		response
 			.pipe(zlib.createBrotliDecompress())
 			.pipe(tar.extract("."));
 	});
 
-	request.on("error", handleError).end();
+	request.on("error", handleInstallError).end();
 }
 
-if (process.argv.includes("--no-prebuild")) {
+function handleInstallError(error) {
+	console.error(error);
+
+	if (!ARGS.includes("--fallback-to-compile")) {
+		process.exit(2);
+	}
+
+	try {
+		const cmd = "node-gyp rebuild --ensure";
+		execSync(cmd, { stdio: "inherit" });
+	} catch (e) {
+		process.exit(e.status);
+	}
+}
+
+if (ARGS.includes("--no-prebuild")) {
 	// skip install prebuild on CI
-} else if (process.argv.includes("install")) {
+} else if (COMMAND === "install") {
 	download();
-} else if (process.argv.includes("pack")) {
+} else if (COMMAND === "pack") {
 	pack();
 } else {
 	console.error("Argument required: install or pack");
