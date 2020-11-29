@@ -9,18 +9,27 @@ git:
   depth: false
   quiet: true
 
+os_win: &os_win
+  os: windows
+  env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+  before_install:
+    - choco install python
+    - npm install -g node-gyp
+
+os_linux: &os_linux
+  os: linux
+  before_install: npm install -g node-gyp
+
 jobs:
   include:
-    - os: windows
-      node_js: [14, 15]
-      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
-      before_install:
-        - choco install python
-        - npm install -g node-gyp
-
-    - os: linux
-      node_js: [14, 15]
-      before_install: npm install -g node-gyp
+    - <<: *os_win
+      node_js: 14
+    - <<: *os_win
+      node_js: 15
+    - <<: *os_linux
+      node_js: 14
+    - <<: *os_linux
+      node_js: 15
 
 install: npm ci --no-prebuild --no-optional
 
