@@ -9,6 +9,7 @@ git:
   depth: false
   quiet: true
 
+# Travis 的 jobs 只继承外层的第一个环境，目前只想到用引用的方式来生成任务
 os_win: &os_win
   os: windows
   env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
@@ -26,6 +27,7 @@ jobs:
       node_js: 14
     - <<: *os_win
       node_js: 15
+
     - <<: *os_linux
       node_js: 14
     - <<: *os_linux
