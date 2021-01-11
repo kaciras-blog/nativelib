@@ -1,10 +1,10 @@
 /*
- * 提供对构建好的二进制文件的打包和从 GitHub 下载功能，该脚本需要配合 Travis CI 使用。
+ * 提供对构建好的二进制文件的打包和从 GitHub 下载功能，该脚本需要配合 CI 使用。
  *
  * 【为什么不用 https://github.com/prebuild/prebuild】
- * 1）prebuild 把 @xxx/xxx 这样的包名直接用做文件名导致路径错乱。
+ * 1）prebuild 无法正确处理包名里的斜杠。
  * 2）prebuild 不支持压缩率更高的 brotli 算法。
- * 3）通过与 CI 整合，自己实现一个也不难，prebuild 功能太多不好用。
+ * 3）通过与 CI 整合，自己实现一个也不难，prebuild 功能太多反而不好用。
  */
 const { execSync } = require("child_process");
 const { join } = require("path");
@@ -16,8 +16,6 @@ const packageJson = require("../package.json");
 
 // 定死工作目录为项目根目录，免得下面老是去组装路径
 process.chdir(join(__dirname, ".."));
-
-const [, , COMMAND, ...ARGS] = process.argv;
 
 /**
  * 获取当前环境下的压缩包名，跟 prebuild 的一致。
@@ -97,10 +95,12 @@ function handleInstallError(error) {
 	}
 }
 
-if (process.env.NO_PREBUILD) {
-	// skip install prebuilt on CI
-} else if (COMMAND === "install") {
-	download();
+const [, , COMMAND] = process.argv;
+
+if (COMMAND === "install") {
+	if (!process.env.NO_PREBUILD) {
+		download();
+	}
 } else if (COMMAND === "pack") {
 	pack();
 } else {
