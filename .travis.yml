@@ -25,14 +25,12 @@ jobs:
   include:
     - <<: *job_windows
       node_js: 14
-      before_install: npm i -g npm@next-7
 
     - <<: *job_windows
       node_js: 15
 
     - <<: *job_linux
       node_js: 14
-      before_install: npm i -g npm@next-7
 
     - <<: *job_linux
       node_js: 15

@@ -85,11 +85,7 @@ function download() {
 }
 
 function handleInstallError(error) {
-	console.error(error);
-
-	if (!ARGS.includes("--fallback-to-compile")) {
-		process.exit(2);
-	}
+	console.warn(error);
 
 	try {
 		const cmd = "node-gyp rebuild --ensure";
@@ -99,8 +95,8 @@ function handleInstallError(error) {
 	}
 }
 
-if (ARGS.includes("--no-prebuild")) {
-	// skip install prebuild on CI
+if (process.env.NO_PREBUILD) {
+	// skip install prebuilt on CI
 } else if (COMMAND === "install") {
 	download();
 } else if (COMMAND === "pack") {
