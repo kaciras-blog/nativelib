@@ -49,15 +49,17 @@ function getGithubRelease() {
  * 注意本命令只打包，不负责编译和上传，这两个步骤需要 CI 来完成。
  */
 function pack() {
-	fs.rmdirSync("prebuilds", { recursive: true });
+	fs.rmSync("prebuilds", { recursive: true, force: true });
 	fs.mkdirSync("prebuilds");
 
 	const pack = tar.pack(".", {
 		entries: ["build/Release/binding.node"]
 	});
 
-	pack.pipe(zlib.createBrotliCompress())
-		.pipe(fs.createWriteStream(`prebuilds/${getPackageName()}`));
+	const file = `prebuilds/${getPackageName()}`;
+	console.log(`Packing files to ${file}`);
+
+	pack.pipe(zlib.createBrotliCompress()).pipe(fs.createWriteStream(file));
 }
 
 /**
