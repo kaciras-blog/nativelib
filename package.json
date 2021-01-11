@@ -13,9 +13,13 @@
 	"engines": {
 		"node": ">=14"
 	},
-	"keywords": [
-		"xxhash",
-		"xxhash3"
+	"files": [
+		"script/**",
+		"src/**",
+		"deps/**",
+		"binding.gyp",
+		"index.js",
+		"index.d.ts"
 	],
 	"scripts": {
 		"install": "node script/prebuild.js install",

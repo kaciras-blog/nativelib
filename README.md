@@ -4,14 +4,12 @@ Kaciras 博客的 Node 本地扩展，包含了一些需要在底层实现的功
 
 ## xxHash
 
-[xxHash](https://github.com/Cyan4973/xxHash) 是一个非加密 Hash 函数系列，拥有很快的运算速度。
-
-本项包含 xxHash 算法的Node扩展，支持（XXH32, XXH64, XXH3, XXH128）。
+[xxHash](https://github.com/Cyan4973/xxHash) 是一个非加密 Hash 函数系列，拥有很快的运算速度。本项包含 xxHash 算法的 Node 扩展，支持（XXH32, XXH64, XXH3, XXH128）。
 
 # 安装
 
 ```shell script
-yarn add git://github.com/kaciras-blog/nativelib#v0.2.1 [--no-prebuild]
+yarn add @kaciras-blog/nativelib [--no-prebuild]
 ```
 
 默认情况将从 GitHub Release 上下载编译好的二进制文件，如果需要自己编译请添加`--no-prebuild`参数。
@@ -23,7 +21,7 @@ yarn add git://github.com/kaciras-blog/nativelib#v0.2.1 [--no-prebuild]
 使用跟 crypto 模块相似的 API：
 
 ```javascript
-const { createXXH3_128 } = require("xxhash-native");
+const { createXXH3_128 } = require("@kaciras-blog/nativelib");
 
 console.log(createXXH3_128().update("xxhash").digest("hex"));
 // 9c8b437c78cac00a376072e24bfdf4d2
@@ -32,7 +30,7 @@ console.log(createXXH3_128().update("xxhash").digest("hex"));
 使用快捷函数：
 
 ```javascript
-const { xxHash3_128 } = require("xxhash-native");
+const { xxHash3_128 } = require("@kaciras-blog/nativelib");
 
 // base64u 是 Base 64 Encoding with URL and Filename Safe Alphabet
 console.log(xxHash3_128("xxhash", "base64u"));
@@ -40,7 +38,3 @@ console.log(xxHash3_128("xxhash", "base64u"));
 ```
 
 xxHash 算法非常快，故没有提供异步的版本。
-
-# WebAssembly
-
-本项目有两种输出格式：本地二进制和 WebAssembly 模块，两者的性能差别见 benchmark
