@@ -10,27 +10,31 @@ git:
   quiet: true
 
 # Travis 的 jobs 只继承外层的第一个环境，目前只想到用引用的方式来生成任务
-os_win: &os_win
+job_win: &job_windows
   os: windows
   env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
   before_install:
     - choco install python
     - npm install -g node-gyp
 
-os_linux: &os_linux
+job_linux: &job_linux
   os: linux
   before_install: npm install -g node-gyp
 
 jobs:
   include:
-    - <<: *os_win
+    - <<: *job_windows
       node_js: 14
-    - <<: *os_win
+      before_install: npm i -g npm@next-7
+
+    - <<: *job_windows
       node_js: 15
 
-    - <<: *os_linux
+    - <<: *job_linux
       node_js: 14
-    - <<: *os_linux
+      before_install: npm i -g npm@next-7
+
+    - <<: *job_linux
       node_js: 15
 
 install: npm ci --no-prebuild --no-optional
