@@ -7,37 +7,7 @@
 #include <xxhash.h>
 
 using namespace emscripten;
-
 using std::string;
-
-
-class XXHash3_128 {
-
-	XXH3_state_s* state = XXH3_createState();
-
-public:
-
-	XXHash3_128() {
-		XXH3_128bits_reset(state);
-	}
-
-	~XXHash3_128() {
-		XXH3_freeState(state);
-	}
-
-	void Update(string buffer) {
-		XXH3_128bits_update(state, buffer.data(), buffer.length());
-	}
-
-	val Digest() {
-		auto hash = XXH3_128bits_digest(state);
-
-		XXH128_canonical_t canonical_sum;
-		XXH128_canonicalFromHash(&canonical_sum, hash);
-
-		return val(typed_memory_view(16, canonical_sum.digest));
-	}
-};
 
 val Canonical_128(XXH128_hash_t hash) {
 	const size_t SIZE = sizeof(XXH128_canonical_t);
@@ -76,16 +46,9 @@ val CalcXXHash3_128(string buffer, string secret) {
 	return val(typed_memory_view(size, canonical_sum.digest));
 }
 
+#define EXPORT(A, B) function(A, B, allow_raw_pointers());
+
 EMSCRIPTEN_BINDINGS(xxhash_module) {
-	function("xxHash3_128", select_overload<val(string)>(&CalcXXHash3_128));
-	function("xxHash3_128_Seed", select_overload<val(string, int32_t)>(&CalcXXHash3_128));
-	function("xxHash3_128_Secret", select_overload<val(string, string)>(&CalcXXHash3_128));
-
-	class_<XXHash3_128>("XXHash3_128")
-		.constructor()
-		.function("Update", &XXHash3_128::Update)
-		.function("Digest", &XXHash3_128::Digest);
-
 	/*
 	 * Sanitizer 是编译器的一个功能，在编译期插入一些代码，用来检测各种运行时 BUG。
 	 * emcc 使用 -fsanitize=... 来启用该功能。
@@ -101,4 +64,16 @@ EMSCRIPTEN_BINDINGS(xxhash_module) {
 	function("doLeakCheckError", &__lsan_do_leak_check);
 	function("doLeakCheck", &__lsan_do_recoverable_leak_check);
 #endif
+
+	EXPORT("XXH32_createState", XXH32_createState);
+	function("XXH32_reset", &XXH32_reset, allow_raw_pointers());
+	function("XXH32_freeState", &XXH32_freeState, allow_raw_pointers());
+	function("XXH32_update", &XXH32_update, allow_raw_pointers());
+	function("XXH32_digest", &XXH32_digest, allow_raw_pointers());
+
+	function("XXH3_createState", &XXH3_createState, allow_raw_pointers());
+
+	function("xxHash3_128", select_overload<val(string)>(&CalcXXHash3_128));
+	function("xxHash3_128_Seed", select_overload<val(string, int32_t)>(&CalcXXHash3_128));
+	function("xxHash3_128_Secret", select_overload<val(string, string)>(&CalcXXHash3_128));
 }
