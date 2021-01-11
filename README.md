@@ -9,7 +9,7 @@ Kaciras 博客的 Node 本地扩展，包含了一些需要在底层实现的功
 # 安装
 
 ```shell script
-yarn add @kaciras-blog/nativelib [--no-prebuild]
+yarn add @kaciras-blog/nativelib
 ```
 
 默认情况将从 GitHub Release 上下载编译好的二进制文件，如果需要自己编译请添加`--no-prebuild`参数。
