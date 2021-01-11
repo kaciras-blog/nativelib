@@ -11,14 +11,13 @@ const { join } = require("path");
 process.chdir(join(__dirname, ".."));
 
 const ARGS = [
-	"--bind",
 	"-o build/wasm.js",
 	"-I deps/xxHash",
 ];
 
-const FLAGS = {
-	ALLOW_MEMORY_GROWTH: true,
-	MODULARIZE: true,
+const SWITCHES = {
+	ALLOW_MEMORY_GROWTH: 1,
+	MODULARIZE: 1,
 };
 
 const SOURCE_FILES = [
@@ -27,29 +26,31 @@ const SOURCE_FILES = [
 ];
 
 if (process.argv.includes("-release")) {
-	ARGS.push("-O2");
+	ARGS.push("-O3");
 	ARGS.push("--closure 1");
 } else {
 	// SAFE_HEAP 与 sanitizer 不兼容
 	if (process.argv.includes("-safe-heap")) {
-		FLAGS.SAFE_HEAP = true;
+		SWITCHES.SAFE_HEAP = 1;
 	} else {
-		FLAGS.EXIT_RUNTIME = true;
 		ARGS.push("-fsanitize=address");
+
+		// fix wasm-ld error
+		SWITCHES.TOTAL_MEMORY = 335544320;
 	}
-	FLAGS.ASSERTIONS = true;
+	SWITCHES.ASSERTIONS = 1;
 	ARGS.push("-g4");
 	ARGS.push("--source-map-base build");
 }
 
 // =================================================
 
-const flagCommands = Object.keys(FLAGS)
-	.map(flag => `-s ${flag}=${FLAGS[flag] ? 1 : 0}`);
+const switchArgs = Object.entries(SWITCHES)
+	.map(([name, value]) => `-s ${name}=${value}`);
 
 const command = ["emcc"];
+command.push.apply(command, switchArgs);
 command.push.apply(command, ARGS);
-command.push.apply(command, flagCommands);
 command.push.apply(command, SOURCE_FILES);
 
 try {
