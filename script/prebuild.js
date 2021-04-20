@@ -4,17 +4,17 @@
  * 【为什么不用 https://github.com/prebuild/prebuild】
  * 1）prebuild 无法正确处理包名里的斜杠。
  * 2）prebuild 不支持压缩率更高的 brotli 算法。
- * 3）通过与 CI 整合，自己实现一个也不难，prebuild 功能太多反而不好用。
+ * 3）通过与 CI 整合，使得实现非常简单，prebuild 功能太多反而不好用。
  */
 const { execSync } = require("child_process");
 const { join } = require("path");
 const fs = require("fs");
-const zlib = require("zlib");
+const { createBrotliCompress, createBrotliDecompress } = require("zlib");
 const { https } = require("follow-redirects");
 const tar = require("tar-fs");
 const packageJson = require("../package.json");
 
-// 定死工作目录为项目根目录，免得下面老是去组装路径
+// 定死工作目录为项目根目录，免得老是去组装路径
 process.chdir(join(__dirname, ".."));
 
 /**
@@ -51,17 +51,18 @@ function pack() {
 	fs.mkdirSync("prebuilds");
 
 	const pack = tar.pack(".", {
-		entries: ["build/Release/binding.node"]
+		entries: ["build/Release/binding.node"],
 	});
 
 	const file = `prebuilds/${getPackageName()}`;
 	console.log(`Packing files to ${file}`);
 
-	pack.pipe(zlib.createBrotliCompress()).pipe(fs.createWriteStream(file));
+	pack.pipe(createBrotliCompress()).pipe(fs.createWriteStream(file));
 }
 
 /**
  * 从 GitHub Release 上下载预编译好的文件并解压。
+ * 如果下载失败或没有预构建，则尝试编译。
  */
 function download() {
 	const url = `${getGithubRelease()}/${getPackageName()}`;
@@ -77,7 +78,7 @@ function download() {
 		}
 
 		response
-			.pipe(zlib.createBrotliDecompress())
+			.pipe(createBrotliDecompress())
 			.pipe(tar.extract("."));
 	});
 
@@ -95,13 +96,13 @@ function handleInstallError(error) {
 	}
 }
 
-const [, , COMMAND] = process.argv;
+const [, , verb] = process.argv;
 
-if (COMMAND === "install") {
+if (verb === "install") {
 	if (!process.env.NO_PREBUILD) {
 		download();
 	}
-} else if (COMMAND === "pack") {
+} else if (verb === "pack") {
 	pack();
 } else {
 	console.error("Argument required: install or pack");

@@ -3,7 +3,7 @@
  *
  * 【用法】
  * node script/compile-wasm.js [-release] [-safe-heap]
- * 默认不加 -release 参数会使用调试模式编译。
+ * 默认会使用调试模式编译。
  */
 const { execSync } = require("child_process");
 const { join } = require("path");

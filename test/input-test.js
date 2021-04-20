@@ -16,8 +16,8 @@ it("should throw error on update without data", () => {
 
 test.each([
 	["xxhash", "ascii"],
-	["(￣ε(#￣)☆", "utf8",],
-	["(￣ε(#￣)☆", "utf-8",],
+	["(￣ε(#￣)☆", "utf8"],
+	["(￣ε(#￣)☆", "utf-8"],
 	["(￣ε(#￣)☆", "utf16le"],
 	["(￣ε(#￣)☆", "ucs2"],
 	["(￣ε(#￣)☆", "ucs-2"],
