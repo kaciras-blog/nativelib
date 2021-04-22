@@ -19,6 +19,7 @@ _job_win: &job_windows
 
 _job_linux: &job_linux
   os: linux
+  dist: focal
   before_install: npm install -g node-gyp
 
 jobs:
@@ -27,13 +28,13 @@ jobs:
       node_js: 14
 
     - <<: *job_windows
-      node_js: 15
+      node_js: 16
 
     - <<: *job_linux
       node_js: 14
 
     - <<: *job_linux
-      node_js: 15
+      node_js: 16
 
 install: npm ci --no-prebuild --no-optional
 
