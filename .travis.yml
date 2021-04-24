@@ -42,11 +42,10 @@ jobs:
     - <<: *job_linux
       node_js: 16
 
-before_install:
+install:
   - curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
   - pnpm config set store-dir ~/.pnpm-store
-
-install: pnpm i --no-prebuild --no-optional
+  - pnpm install --no-prebuild --no-optional
 
 before_script: node-gyp rebuild
 
