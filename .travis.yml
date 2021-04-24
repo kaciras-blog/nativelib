@@ -9,6 +9,11 @@ git:
   depth: false
   quiet: true
 
+cache:
+  npm: false
+  directories:
+    - "~/.pnpm-store"
+
 # Travis 的 jobs 只继承外层的第一个环境，目前只想到用引用的方式来生成任务
 _job_win: &job_windows
   os: windows
@@ -17,6 +22,7 @@ _job_win: &job_windows
     - choco install python
     - npm install -g node-gyp
 
+# Node 16 要求 Python >= 3.6，Xenial 没有要用最新版系统。
 _job_linux: &job_linux
   os: linux
   dist: focal
@@ -36,7 +42,11 @@ jobs:
     - <<: *job_linux
       node_js: 16
 
-install: npm ci --no-prebuild --no-optional
+before_install:
+  - curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
+  - pnpm config set store-dir ~/.pnpm-store
+
+install: pnpm i --no-prebuild --no-optional
 
 before_script: node-gyp rebuild
 
