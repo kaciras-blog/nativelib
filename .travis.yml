@@ -9,6 +9,7 @@ git:
   depth: false
   quiet: true
 
+# https://pnpm.io/continuous-integration#travis
 cache:
   npm: false
   directories:
@@ -18,15 +19,12 @@ cache:
 _job_win: &job_windows
   os: windows
   env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
-  before_install:
-    - choco install python
-    - npm install -g node-gyp
+  before_install: choco install python
 
 # Node 16 要求 Python >= 3.6，Xenial 没有要用最新版系统。
 _job_linux: &job_linux
   os: linux
   dist: focal
-  before_install: npm install -g node-gyp
 
 jobs:
   include:
@@ -45,9 +43,12 @@ jobs:
 install:
   - curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
   - pnpm config set store-dir ~/.pnpm-store
-  - pnpm install --no-prebuild --no-optional
+  - pnpm install -g node-gyp
+  - pnpm install --no-optional
 
 before_script: node-gyp rebuild
+
+script: pnpm test
 
 after_success: node script/prebuild.js pack
 
