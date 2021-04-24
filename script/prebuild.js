@@ -96,10 +96,11 @@ function handleInstallError(error) {
 	}
 }
 
+const { NO_PREBUILD, CI } = process.env;
 const [, , verb] = process.argv;
 
 if (verb === "install") {
-	if (!process.env.NO_PREBUILD) {
+	if (!NO_PREBUILD && !CI) {
 		download();
 	}
 } else if (verb === "pack") {
