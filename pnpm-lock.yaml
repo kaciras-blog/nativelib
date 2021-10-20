@@ -7,14 +7,14 @@ specifiers:
   follow-redirects: ^1.14.4
   jest: ^27.3.1
   murmurhash-native: ^3.5.0
-  nan: ^2.15.0
+  node-addon-api: ^4.2.0
   tar-fs: ^2.1.1
   typescript: ^4.4.4
   xxhashjs: ^0.2.2
 
 dependencies:
   follow-redirects: 1.14.4
-  nan: 2.15.0
+  node-addon-api: 4.2.0
   tar-fs: 2.1.1
 
 optionalDependencies:
@@ -2723,10 +2723,6 @@ packages:
     dev: false
     optional: true
 
-  /nan/2.15.0:
-    resolution: {integrity: sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==}
-    dev: false
-
   /natural-compare/1.4.0:
     resolution: {integrity: sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=}
     dev: true
@@ -2741,6 +2737,10 @@ packages:
       sax: 1.2.4
     dev: false
     optional: true
+
+  /node-addon-api/4.2.0:
+    resolution: {integrity: sha512-eazsqzwG2lskuzBqCGPi7Ac2UgOoMz8JVOXVhTvvPDYhthvNpefx8jWD8Np7Gv+2Sz0FlPWZk0nJV0z598Wn8Q==}
+    dev: false
 
   /node-int64/0.4.0:
     resolution: {integrity: sha1-h6kGXNs1XTGC2PlM4RGIuCXGijs=}
