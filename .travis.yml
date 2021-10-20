@@ -29,16 +29,10 @@ _job_linux: &job_linux
 jobs:
   include:
     - <<: *job_windows
-      node_js: 14
-
-    - <<: *job_windows
-      node_js: 16
+      node_js: 17
 
     - <<: *job_linux
-      node_js: 14
-
-    - <<: *job_linux
-      node_js: 16
+      node_js: 17
 
 install:
   - curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
