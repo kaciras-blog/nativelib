@@ -6,4 +6,4 @@ Napi::Object RegisterModule(Napi::Env env, Napi::Object exports) {
 	return exports;
 }
 
-NODE_API_MODULE(nativelib, RegisterModule);
+NODE_API_MODULE(NODE_GYP_MODULE_NAME, RegisterModule);

@@ -1,14 +1,7 @@
 // noinspection ES6PreferShortImport
 
 import { BinaryToTextEncoding, Encoding } from "node:crypto";
-import { XXHash3_128Core } from "../build/Release/binding.node";
-
-export type InputData = string | Buffer;
-
-/**
- * 无状态函数，直接计算结果
- */
-export const xxHash3_128 = XXHash3_128Core.hash;
+import { XXHash3_128Core } from "../build/Release/nativelib.node";
 
 /**
  * 跟 NodeJS 的 crypto 模块差不多的 API，不过没有继承 stream
@@ -19,15 +12,7 @@ class XXHash3_128 extends XXHash3_128Core {
 		return new XXHash3_128(this);
 	}
 
-	/**
-	 * 用字符串更新状态，支持所有 Buffer.from 的编码。
-	 *
-	 * 注：base64 就可以解码 base64u。
-	 *
-	 * @param data 字符串数据
-	 * @param encoding 编码，省略则为UTF-8
-	 */
-	update(data: InputData, encoding?: Encoding) {
+	update(data: string | Buffer, encoding?: Encoding) {
 		if (typeof data === "string") {
 			data = Buffer.from(data, encoding);
 		}
@@ -51,3 +36,8 @@ class XXHash3_128 extends XXHash3_128Core {
 export function createXXH3_128(seed?: number | Buffer) {
 	return new XXHash3_128(seed);
 }
+
+/**
+ * 无状态函数，直接计算结果，仅支持 Buffer 类型参数和输出。
+ */
+export const xxHash3_128 = XXHash3_128Core.hash;
