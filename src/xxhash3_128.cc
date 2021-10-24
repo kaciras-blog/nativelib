@@ -21,13 +21,13 @@ void CheckSecret(const Napi::CallbackInfo& info, Napi::Buffer<char> buffer){
 void XXHash3_128::Register(Napi::Env env, Napi::Object exports) {
 	Napi::HandleScope scope(env);
 
-	Napi::Function t = DefineClass(env, "XXHash3_128Core", {
+	auto t = DefineClass(env, "XXHash3_128Core", {
 		StaticMethod<&XXHash3_128::Hash>("hash"),
-		InstanceMethod<&XXHash3_128::Update>("update"),
-		InstanceMethod<&XXHash3_128::Digest>("digest"),
-		});
+		InstanceMethod<&XXHash3_128::Update>("updateBytes"),
+		InstanceMethod<&XXHash3_128::Digest>("digestBytes"),
+	});
 
-	Napi::FunctionReference* constructor = new Napi::FunctionReference();
+	auto constructor = new Napi::FunctionReference();
 	*constructor = Napi::Persistent(t);
 
 	exports.Set("XXHash3_128Core", t);
@@ -41,21 +41,25 @@ XXHash3_128::XXHash3_128(const Napi::CallbackInfo& info) : Napi::ObjectWrap<XXHa
 	if (secret.IsUndefined())
 	{
 		XXH3_128bits_reset(state);
-	} else if (secret.IsObject())
+	} 
+	else if (secret.IsObject())
 	{
 		auto from = Napi::ObjectWrap<XXHash3_128>::Unwrap(secret.ToObject());
 		XXH3_copyState(state, from->state);
-	} else if (secret.IsNumber())
+	} 
+	else if (secret.IsNumber())
 	{
 		auto seed = secret.As<Napi::Number>().Int32Value();
 		XXH3_128bits_reset_withSeed(state, seed);
-	} else if (secret.IsBuffer())
+	} 
+	else if (secret.IsBuffer())
 	{
 		auto buffer = secret.As<Napi::Buffer<char>>();
 		CheckSecret(info, buffer);
 
 		XXH3_128bits_reset_withSecret(state, buffer.Data(), buffer.Length());
-	} else
+	} 
+	else
 	{
 		throw Napi::TypeError::New(env, "Secret must be a number or buffer");
 	}
@@ -73,7 +77,8 @@ Napi::Value XXHash3_128::Update(const Napi::CallbackInfo& info){
 		auto buffer = value.As<Napi::Buffer<char>>();
 		XXH3_128bits_update(state, buffer.Data(), buffer.Length());
 		return info.This();
-	} else
+	} 
+	else
 	{
 		auto env = info.Env();
 		throw Napi::Error::New(env, "update() only accept buffer");

@@ -1,5 +1,8 @@
 module.exports = {
-	extends: ["@kaciras/core"],
+	extends: [
+		"@kaciras/core",
+		"@kaciras/typescript",
+	],
 	env: {
 		node: true,
 	},
