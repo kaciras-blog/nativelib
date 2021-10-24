@@ -17,17 +17,16 @@ const ARGS = [
 
 const SWITCHES = {
 	ALLOW_MEMORY_GROWTH: 1,
-	MODULARIZE: 1,
+	WASM: 1,
 };
 
 const SOURCE_FILES = [
-	"emscripten/xxhash.cpp",
+	"benchmark/xxhash.c",
 	"deps/xxHash/xxhash.c",
 ];
 
 if (process.argv.includes("-release")) {
 	ARGS.push("-O3");
-	ARGS.push("--closure 1");
 } else {
 	// SAFE_HEAP 与 sanitizer 不兼容
 	if (process.argv.includes("-safe-heap")) {
