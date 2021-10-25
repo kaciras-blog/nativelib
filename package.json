@@ -1,7 +1,7 @@
 {
 	"name": "@kaciras-blog/nativelib",
 	"version": "0.2.10",
-	"description": "Node.js native addon for kaciras blog",
+	"description": "Node addon for Kaciras Blog",
 	"license": "MIT",
 	"author": "Kaciras <Kaciras@protonmail.com>",
 	"repository": {
@@ -23,7 +23,6 @@
 	"scripts": {
 		"install": "node script/prebuild.js install",
 		"lint": "eslint --fix --ext .js .",
-		"compile-wasm": "node benchmark/compile-wasm.js -release",
 		"test": "jest"
 	},
 	"dependencies": {
@@ -41,9 +40,5 @@
 		"jest": "^27.3.1",
 		"ts-jest": "^27.0.7",
 		"typescript": "^4.4.4"
-	},
-	"optionalDependencies": {
-		"murmurhash-native": "^3.5.0",
-		"xxhashjs": "^0.2.2"
 	}
 }

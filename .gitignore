@@ -21,4 +21,4 @@ node_modules
 *.vcxproj*
 
 # Temporary files
-/temp.js
+/debug.js

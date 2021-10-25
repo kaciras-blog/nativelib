@@ -1,0 +1,11 @@
+{
+	"name": "benchmark",
+	"version": "1.0.0",
+	"scripts": {
+		"compile-wasm": "node compile-wasm.js -release"
+	},
+	"dependencies": {
+		"murmurhash-native": "^3.5.0",
+		"xxhashjs": "^0.2.2"
+	}
+}
