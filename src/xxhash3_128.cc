@@ -41,25 +41,17 @@ void XXHash3_128::Register(Napi::Env env, Napi::Object exports) {
 }
 
 XXHash3_128::XXHash3_128(const Napi::CallbackInfo& info) : Napi::ObjectWrap<XXHash3_128>(info) {
-	auto env = info.Env();
 	auto argument = info[0];
 
 	if (argument.IsUndefined())
 	{
-		// 无参调用构造方法在这里也会接收到一个 undefined？
+		// 不用任何参数调用构造方法，在这里也会接收到一个 undefined？
 		XXH3_128bits_reset(state);
-	}
-	else if (argument.IsObject())
-	{
-		// 参数为对象时复制状态，懒得单独写个方法所以放这里了。
-		// 仅内部使用，没有检查对象的类型。
-		auto from = Napi::ObjectWrap<XXHash3_128>::Unwrap(argument.ToObject());
-		XXH3_copyState(state, from->state);
 	}
 	else if (argument.IsNumber())
 	{
 		// 以整数类型的种子初始化。
-		auto seed = argument.As<Napi::Number>().Int32Value();
+		auto seed = argument.As<Napi::Number>().Int64Value();
 		XXH3_128bits_reset_withSeed(state, seed);
 	}
 	else if (argument.IsBuffer())
@@ -69,9 +61,18 @@ XXHash3_128::XXHash3_128(const Napi::CallbackInfo& info) : Napi::ObjectWrap<XXHa
 		CheckSecret(info, secret);
 		XXH3_128bits_reset_withSecret(state, secret.Data(), secret.Length());
 	}
+	else if (argument.IsObject())
+	{
+		// 参数为对象时复制状态，懒得单独写个方法所以放这里了。
+		// 因为 Buffer 也是 object 所以要放在后面。
+		// 如果对象不是 XXHash3_128 的实例则抛出异常 Invalid argument。
+		auto from = Napi::ObjectWrap<XXHash3_128>::Unwrap(argument.ToObject());
+		XXH3_copyState(state, from->state);
+	}
 	else
 	{
-		throw Napi::TypeError::New(env, "Secret must be a number or buffer");
+		auto env = info.Env();
+		throw Napi::TypeError::New(env, "Seed must be a number or buffer");
 	}
 }
 
@@ -130,5 +131,5 @@ Napi::Value XXHash3_128::Hash(const Napi::CallbackInfo& info) {
 	}
 
 	auto env = info.Env();
-	throw Napi::TypeError::New(env, "Secret must be a number or buffer");
+	throw Napi::TypeError::New(env, "Seed must be a number or buffer");
 }
