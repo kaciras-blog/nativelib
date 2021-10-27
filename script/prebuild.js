@@ -49,7 +49,7 @@ function pack() {
 	fs.mkdirSync("prebuilds");
 
 	const pack = tar.pack(".", {
-		entries: ["build/Release/binding.node"],
+		entries: ["build/Release/nativelib.node"],
 	});
 
 	const file = `prebuilds/${getPackageName()}`;
