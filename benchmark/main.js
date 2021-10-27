@@ -89,4 +89,4 @@ wasm.onRuntimeInitialized = () => {
 	run(nodeCrypto("md5"));
 	run(nodeCrypto("sha3-256"));
 	run(nodeCrypto("sha256"));
-}
+};
