@@ -21,9 +21,6 @@ cache:
 # Travis 的 jobs 只继承外层的第一个环境，目前只想到用引用的方式来生成任务
 _job_win: &job_windows
   os: windows
-  env:
-    PATH=/c/Python37:/c/Python37/Scripts:$PATH
-    NO_PREBUILD=true
   before_install: choco install python
 
 # Node 16 要求 Python >= 3.6，Xenial 没有要用最新版系统。
