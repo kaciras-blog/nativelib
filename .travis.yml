@@ -5,6 +5,9 @@ branches:
 
 language: node_js
 
+env:
+  NO_PREBUILD=true
+
 git:
   depth: false
   quiet: true
@@ -37,7 +40,7 @@ jobs:
 install:
   - curl -f https://get.pnpm.io/v6.js | node - add --global pnpm@6
   - pnpm config set store-dir ~/.pnpm-store
-  - pnpm install -g node-gyp
+  - npm install -g node-gyp
   - pnpm install --no-optional
 
 before_script: node-gyp rebuild
