@@ -1,4 +1,4 @@
-const { createXXH3_128, xxHash3_128 } = require("../lib");
+import { createXXH3_128, xxHash3_128 } from "../lib";
 
 const EMPTY = Buffer.alloc(0);
 const SEED = 1048573;
@@ -8,22 +8,22 @@ const SECRET = Buffer.from(
 	" It is proposed in four flavors (XXH32, XXH64, XXH3_64bits and XXH3_128bits)",
 );
 
-const invalidSeeds = [null, "string", {}, true];
-const invalidInputs = [undefined, null, {}, 123456, true];
+const invalidSeeds: any[] = [null, "string", {}, true];
+const invalidInputs: any[] = [undefined, null, {}, 123456, true];
 
 const data = [
 	["xxhash", "9c8b437c78cac00a376072e24bfdf4d2"],
-	[EMPTY, "99aa06d3014798d86001c324468d497f"],
+	["", "99aa06d3014798d86001c324468d497f"],
 ];
 
 const dataWithSeed = [
 	["xxhash", "cb6ecb7a68b24de13c38fd1df6beaa6d"],
-	[EMPTY, "e511155e2e2cc9f448d6b520e2bb5a6c"],
+	["", "e511155e2e2cc9f448d6b520e2bb5a6c"],
 ];
 
 const dataWithSecret = [
 	["xxhash", "0ed3ac9d7bf477a459c6cc598b479f67"],
-	[EMPTY, "49667c25447e15aa5da4ef2a97dec1c9"],
+	["", "49667c25447e15aa5da4ef2a97dec1c9"],
 ];
 
 describe("createXXH3_128", () => {
@@ -37,6 +37,7 @@ describe("createXXH3_128", () => {
 	});
 
 	it("should throw error on update without data", () => {
+		// @ts-ignore Test for invalid call
 		expect(() => createXXH3_128().update()).toThrow();
 	});
 
@@ -88,6 +89,7 @@ describe("createXXH3_128", () => {
 describe("xxHash3_128", () => {
 
 	it("should throw error on digest without data", () => {
+		// @ts-ignore Test for invalid call
 		expect(() => xxHash3_128()).toThrow();
 	});
 
