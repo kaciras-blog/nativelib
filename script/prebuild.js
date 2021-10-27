@@ -23,11 +23,9 @@ process.chdir(join(__dirname, ".."));
 function getPackageName() {
 	const name = packageJson.name.split("/").pop();
 	const { version } = packageJson;
-	const runtime = "node";
-	const abi = process.versions.modules;
 	const { platform, arch } = process;
 
-	return `${name}-v${version}-${runtime}-v${abi}-${platform}-${arch}.tar.br`;
+	return `${name}-${version}-${platform}-${arch}.tar.br`;
 }
 
 function getGithubRelease() {
@@ -96,11 +94,11 @@ function handleInstallError(error) {
 	}
 }
 
-const { NO_PREBUILD, CI } = process.env;
+const { NO_PREBUILD } = process.env;
 const [, , verb] = process.argv;
 
 if (verb === "install") {
-	if (!NO_PREBUILD && !CI) {
+	if (!NO_PREBUILD) {
 		download();
 	}
 } else if (verb === "pack") {

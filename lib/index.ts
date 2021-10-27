@@ -1,6 +1,4 @@
-// noinspection ES6PreferShortImport
-
-import { BinaryToTextEncoding, Encoding } from "node:crypto";
+import { BinaryToTextEncoding, Encoding } from "crypto";
 import { XXHash3_128Core } from "../build/Release/nativelib.node";
 
 /**
@@ -16,7 +14,7 @@ class XXHash3_128 extends XXHash3_128Core {
 		if (typeof data === "string") {
 			data = Buffer.from(data, encoding);
 		}
-		return super.updateBytes(data);
+		return super.updateBytes(data) as this;
 	}
 
 	digest(encoding?: BinaryToTextEncoding) {
@@ -31,7 +29,7 @@ class XXHash3_128 extends XXHash3_128Core {
  * 如果种子是 Buffer 则至少要有 136 bytes。
  *
  * @param seed 种子
- * @throws 如果密钥的长度不足 136 字节
+ * @throws 如果种子是 Buffer 类型且长度不足 136 字节
  */
 export function createXXH3_128(seed?: number | Buffer) {
 	return new XXHash3_128(seed);

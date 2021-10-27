@@ -5,8 +5,6 @@ const webpackImpl = require("./xxh64-webpack");
 const nativelib = require("../lib");
 const wasm = require("../build/wasm");
 
-const ready = () => new Promise(resolve => wasm.onRuntimeInitialized = resolve);
-
 function wasmImpl(buffer) {
 	const pInput = wasm._createBuffer(buffer.length);
 	wasm.HEAP8.set(buffer, pInput);
@@ -71,9 +69,7 @@ function run(func) {
 	console.log(`${(end - start).toFixed(3)} ms\n`);
 }
 
-async function runBenchmarks() {
-	await ready();
-
+wasm.onRuntimeInitialized = () => {
 	run(xxHash3_128);
 	run(quickXXHash3_128);
 
@@ -87,12 +83,10 @@ async function runBenchmarks() {
 		crypto.createHash("md4");
 		run(nodeCrypto("md4"));
 	} catch {
-		console.log("当前版本的 Node 不支持 MD4");
+		console.log("当前的 Node 不支持 MD4\n");
 	}
 
 	run(nodeCrypto("md5"));
 	run(nodeCrypto("sha3-256"));
 	run(nodeCrypto("sha256"));
 }
-
-runBenchmarks().catch(e => console.error(e));
