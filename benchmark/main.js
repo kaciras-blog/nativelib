@@ -1,6 +1,7 @@
 const { performance } = require("perf_hooks");
 const crypto = require("crypto");
 const xxhashjs = require("xxhashjs");
+const { murmurHash128x64 } = require("murmurhash-native");
 const webpackImpl = require("./xxh64-webpack");
 const nativelib = require("../lib");
 const wasm = require("../build/wasm");
@@ -39,6 +40,10 @@ function xxHash3_128Wasm() {
 	return wasmImpl(buffer);
 }
 
+function murmurHash3() {
+	return murmurHash128x64(buffer);
+}
+
 function xxHash64_webpack() {
 	return webpackImpl().update(buffer).digest();
 }
@@ -75,6 +80,8 @@ wasm.onRuntimeInitialized = () => {
 
 	run(xxHash3_128Wasm);
 	run(xxHash64_webpack);
+
+	run(murmurHash3);
 
 	run(xxhashjs32);
 	run(xxhashjs64);
