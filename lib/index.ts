@@ -1,5 +1,6 @@
 import { BinaryToTextEncoding, Encoding } from "crypto";
-import { XXHash3_128Core } from "../build/Release/nativelib.node";
+import { XXHash3_128Core } from "./nativelib";
+
 
 /**
  * 跟 NodeJS 的 crypto 模块差不多的 API，不过没有继承 stream
@@ -14,7 +15,7 @@ class XXHash3_128 extends XXHash3_128Core {
 		if (typeof data === "string") {
 			data = Buffer.from(data, encoding);
 		}
-		return super.updateBytes(data) as this;
+		return super.updateBytes(data);
 	}
 
 	digest(encoding?: BinaryToTextEncoding) {
