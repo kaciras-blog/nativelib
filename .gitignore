@@ -22,3 +22,8 @@ node_modules
 
 # Temporary files
 /debug.js
+
+# TypeScript generated files
+/lib/*.js
+*.d.ts
+*.js.map

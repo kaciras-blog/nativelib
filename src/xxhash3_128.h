@@ -26,7 +26,7 @@ public:
 
 	XXHash3_128(const Napi::CallbackInfo& info);
 
-	// 析构函数在 ObjectWrap 默认的
+	// 在 ObjectWrap 默认的 FinalizeCallback 里会删除实例。
 	~XXHash3_128();
 
 	// 注册该类到扩展

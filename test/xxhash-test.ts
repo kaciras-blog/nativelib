@@ -69,6 +69,14 @@ describe("createXXH3_128", () => {
 		expect(digest).toStrictEqual(expected);
 	});
 
+	test.each(data)("digest buffer - %#", (input, expected) => {
+		const digest = createXXH3_128()
+			.update(Buffer.from(input))
+			.digest("hex");
+
+		expect(digest).toStrictEqual(expected);
+	});
+
 	test.each(dataWithSeed)("digest with seed - %#", (input, expected) => {
 		const digest = createXXH3_128(SEED)
 			.update(input)
@@ -97,7 +105,7 @@ describe("xxHash3_128", () => {
 		expect(() => xxHash3_128(EMPTY, seed)).toThrow();
 	});
 
-	test.each(data)("digest - %#", (input, expected) => {
+	test.each(data)("digest buffer - %#", (input, expected) => {
 		const digest = xxHash3_128(Buffer.from(input));
 		expect(digest.toString("hex")).toStrictEqual(expected);
 	});
