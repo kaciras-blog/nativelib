@@ -1,6 +1,6 @@
 {
 	"name": "@kaciras-blog/nativelib",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"description": "Node addon for Kaciras Blog",
 	"license": "MIT",
 	"author": "Kaciras <Kaciras@protonmail.com>",
