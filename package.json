@@ -26,7 +26,7 @@
 		"test": "jest"
 	},
 	"dependencies": {
-		"follow-redirects": "^1.14.4",
+		"follow-redirects": "^1.14.5",
 		"node-addon-api": "^4.2.0",
 		"tar-fs": "^2.1.1"
 	},
