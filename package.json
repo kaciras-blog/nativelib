@@ -26,7 +26,7 @@
 		"test": "jest"
 	},
 	"dependencies": {
-		"follow-redirects": "^1.14.5",
+		"follow-redirects": "^1.14.6",
 		"node-addon-api": "^4.2.0",
 		"tar-fs": "^2.1.1"
 	},
@@ -35,10 +35,10 @@
 		"@kaciras/eslint-config-jest": "^2.2.0",
 		"@kaciras/eslint-config-typescript": "^2.2.0",
 		"@types/jest": "^27.0.3",
-		"@types/node": "^16.11.11",
-		"eslint": "^8.3.0",
-		"jest": "^27.4.3",
-		"ts-jest": "^27.0.7",
-		"typescript": "^4.5.2"
+		"@types/node": "^16.11.12",
+		"eslint": "^8.4.1",
+		"jest": "^27.4.4",
+		"ts-jest": "^27.1.1",
+		"typescript": "^4.5.3"
 	}
 }
