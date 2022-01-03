@@ -1,3 +1,5 @@
+const jestConfig = require("./jest.config");
+
 module.exports = {
 	extends: [
 		"@kaciras/core",
@@ -8,7 +10,7 @@ module.exports = {
 	},
 	overrides: [
 		{
-			files: require("./jest.config").testMatch,
+			files: jestConfig.testMatch,
 			extends: ["@kaciras/jest"],
 		},
 	],
