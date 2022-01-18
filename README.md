@@ -1,15 +1,17 @@
-Kaciras 博客的 Node 本地扩展，包含了一些需要在底层实现的功能。
-
 [![Build Status](https://travis-ci.org/kaciras-blog/nativelib.svg?branch=master)](https://travis-ci.org/kaciras-blog/nativelib)
+
+[![codecov](https://codecov.io/gh/kaciras-blog/nativelib/branch/master/graph/badge.svg?token=XBI5620UXW)](https://codecov.io/gh/kaciras-blog/nativelib)
+
+Kaciras 博客的 Node 本地扩展，包含了一些需要在底层实现的功能。
 
 ## xxHash
 
-[xxHash](https://github.com/Cyan4973/xxHash) 是一个非加密 Hash 函数系列，拥有很快的运算速度。本项包含 xxHash 算法的 Node 扩展，支持（XXH32, XXH64, XXH3, XXH128）。
+[xxHash](https://github.com/Cyan4973/xxHash) 是一个非加密 Hash 函数系列，拥有很快的运算速度。本项包含 xxHash3_128 算法的 Node 扩展。
 
 # 安装
 
 ```shell script
-yarn add @kaciras-blog/nativelib
+npm i @kaciras-blog/nativelib
 ```
 
 默认情况将从 GitHub Release 上下载编译好的二进制文件，如果需要自己编译请添加`--no-prebuild`参数。
