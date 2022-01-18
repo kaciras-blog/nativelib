@@ -4,6 +4,7 @@ branches:
     - /^v.*$/
 
 language: node_js
+codecov: true
 
 env:
   NO_PREBUILD=true
@@ -44,7 +45,7 @@ install:
 
 before_script: node-gyp rebuild
 
-script: pnpm test
+script: pnpm test --coverage
 
 after_success: node script/prebuild.js pack
 
