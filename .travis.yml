@@ -4,7 +4,6 @@ branches:
     - /^v.*$/
 
 language: node_js
-codecov: true
 
 env:
   NO_PREBUILD=true
@@ -47,7 +46,9 @@ before_script: node-gyp rebuild
 
 script: pnpm test -- --coverage
 
-after_success: node script/prebuild.js pack
+after_success:
+  - node script/prebuild.js pack
+  - bash <(curl -s https://codecov.io/bash)
 
 deploy:
   provider: releases
