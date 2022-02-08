@@ -2,7 +2,7 @@ const { performance } = require("perf_hooks");
 const crypto = require("crypto");
 const xxhashjs = require("xxhashjs");
 const { murmurHash128x64 } = require("murmurhash-native");
-const webpackImpl = require("./xxh64-webpack");
+const webpackImpl = require("../deps/webpack/xxh64");
 const nativelib = require("../lib");
 const wasm = require("../build/wasm");
 
