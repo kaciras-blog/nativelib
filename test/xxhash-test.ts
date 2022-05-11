@@ -1,4 +1,4 @@
-import { createXXH3_128, xxHash3_128 } from "../lib";
+import { createXXH3_128, hashSum, xxHash3_128 } from "../lib";
 
 const EMPTY = Buffer.alloc(0);
 const SEED = 1048573;
@@ -118,5 +118,59 @@ describe("xxHash3_128", () => {
 	test.each(dataWithSecret)("digest with secret - %#", (input, expected) => {
 		const digest = xxHash3_128(Buffer.from(input), SECRET);
 		expect(digest.toString("hex")).toStrictEqual(expected);
+	});
+});
+
+describe("hashSum", () => {
+
+	test("creates unique hashes", () => {
+		const cases = [];
+
+		function test_case(value: any, name?: string) {
+			const hash = hashSum(value);
+			cases.push({ value, hash });
+			console.log("%s from:", hash, name || value);
+		}
+
+		test_case([0, 1, 2, 3]);
+		test_case({ 0: 0, 1: 1, 2: 2, 3: 3 });
+		test_case({ 0: 0, 1: 1, 2: 2, 3: 3, length: 4 });
+		test_case({ url: 12 });
+		test_case({ headers: 12 });
+		test_case({ headers: 122 });
+		test_case({ headers: "122" });
+		test_case({ headers: { accept: "text/plain" } });
+		test_case({ payload: [0, 1, 2, 3], headers: [{ a: "b" }] });
+		test_case("", "''");
+		test_case("null", "'null'");
+		test_case("false", "'false'");
+		test_case("true", "'true'");
+		test_case("0", "'0'");
+		test_case("1", "'1'");
+		test_case("void 0", "'void 0'");
+		test_case("undefined", "'undefined'");
+		test_case(null);
+		test_case(false);
+		test_case(true);
+		test_case(Infinity);
+		test_case(-Infinity);
+		test_case(NaN);
+		test_case(0);
+		test_case(1);
+		test_case(void 0);
+		test_case({});
+		test_case({ a: {}, b: {} });
+		test_case([]);
+		test_case(new Date());
+		test_case(new Date(2019, 5, 28));
+		test_case(new Date(1988, 5, 9));
+	});
+
+	test.each([
+		[{ a: "1", b: 2 }, { b: 2, a: "1" }],
+		[{}, {}],
+		[{ a: "1" }, { a: "1" }],
+	])("hashes clash if same properties %#", (a, b) => {
+		expect(hashSum(a)).toBe(hashSum(b));
 	});
 });

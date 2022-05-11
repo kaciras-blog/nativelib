@@ -22,7 +22,7 @@ declare class XXHash3_128CoreType {
 /**
  * 跟 NodeJS 的 crypto 模块差不多的 API，不过没有继承 stream
  */
-class XXHash3_128 extends XXHash3_128Core {
+export class XXHash3_128 extends XXHash3_128Core {
 
 	copy() {
 		return new XXHash3_128(this);
@@ -74,3 +74,37 @@ export function createXXH3_128(seed?: number | Buffer) {
  * 无状态函数，直接计算结果，仅支持 Buffer 类型参数和输出。
  */
 export const xxHash3_128 = XXHash3_128Core.hash;
+
+export function hashSum(value: any) {
+	const hash = createXXH3_128();
+	const seen = new Set<unknown>();
+
+	function foldObject(obj: any) {
+		for (const key of Object.keys(obj).sort()) {
+			hash.update(key);
+			foldValue(obj[key]);
+		}
+	}
+
+	function foldValue(value: any) {
+		if (value === undefined) {
+			hash.update("undefined");
+		} else if (value === null) {
+			hash.update("null");
+		} else if (typeof value === "object") {
+			if (seen.has(value)) {
+				hash.update("[Circular]");
+			} else {
+				seen.add(value);
+				foldObject(value);
+			}
+		} else if (typeof value !== "function") {
+			hash.update(value.toString());
+		} else {
+			throw new TypeError("function is not hash-able");
+		}
+	}
+
+	foldValue(value);
+	return hash.digest("base64url");
+}
