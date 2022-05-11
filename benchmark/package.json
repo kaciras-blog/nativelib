@@ -5,6 +5,8 @@
 		"compile-wasm": "node compile-wasm.js -release"
 	},
 	"dependencies": {
+		"hash-sum": "^2.0.0",
+		"js-yaml": "^4.1.0",
 		"murmurhash-native": "^3.5.0",
 		"xxhashjs": "^0.2.2"
 	}
