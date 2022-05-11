@@ -37,9 +37,8 @@ jobs:
       node_js: 18
 
 install:
-  - npm install -g pnpm
+  - npm install -g pnpm node-gyp
   - pnpm config set store-dir ~/.pnpm-store
-  - pnpm install -g node-gyp
   - pnpm install --no-optional
 
 before_script: node-gyp rebuild
