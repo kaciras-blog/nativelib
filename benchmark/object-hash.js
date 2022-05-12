@@ -21,12 +21,17 @@ function run(func) {
 }
 
 function myImpl() {
-	return xxHash.hashSum(packageLock);
+	return xxHash.hashSumJS(packageLock);
 }
 
 function sum() {
 	return hashSum(packageLock);
 }
 
+function native() {
+	return xxHash.hashSum(packageLock).toString("base64url");
+}
+
 run(sum);
 run(myImpl);
+run(native);

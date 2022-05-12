@@ -1,4 +1,6 @@
-﻿#include "xxhash3_128.h"
+﻿#include <node_api.h>
+#include <v8.h>
+#include "xxhash3_128.h"
 
 // 该文件只用到了 napi.h 一个 C++ 库，省掉命名空间也不会导致混乱。
 using namespace Napi;
@@ -135,4 +137,85 @@ Value XXHash3_128::Hash(const CallbackInfo& info) {
 
 	auto env = info.Env();
 	throw TypeError::New(env, "Seed must be a number or buffer");
+}
+
+// 拿内存地址来做 Hash，性能最高，但这是 v8 内部 API，还是不要用了。
+bool XXH3_128ObjectHasher::CheckSeen(const Value value) {
+	v8::Local<v8::Value> local;
+	napi_value v = value;
+	memcpy(static_cast<void*>(&local), &v, sizeof(v));
+
+	auto context = v8::Isolate::GetCurrent()->GetCurrentContext();
+	auto s = *local->ToObject(context).ToLocalChecked();
+	auto ad = reinterpret_cast<v8::internal::Address*>(s);
+
+	if (!seen.emplace(*ad).second) {
+		XXH3_128bits_update(state, "[Circular]", 10);
+		return true;
+	}
+	return false;
+}
+
+void XXH3_128ObjectHasher::FoldValue(Value value) {
+	if (value.IsUndefined())
+	{
+		XXH3_128bits_update(state, "[Undefined]", 11);
+	}
+	else if (value.IsNull())
+	{
+		XXH3_128bits_update(state, "[Null]", 6);
+	}
+	else if (value.IsArray())
+	{
+		if (CheckSeen(value)) {
+			return;
+		}
+		auto array = value.As<Array>();
+		for (int i = array.Length() - 1; i >= 0; i--)
+		{
+			FoldValue(array[i]);
+			XXH3_128bits_update(state, &i, sizeof(i));
+		}
+	}
+	else if (value.IsObject())
+	{
+		if (CheckSeen(value)) {
+			return;
+		}
+		for (const auto& e : value.As<Object>()) {
+			FoldValue(e.second);
+			auto key = e.first.As<String>().Utf8Value();
+			XXH3_128bits_update(state, key.c_str(), key.size());
+		}
+	}
+	else if (value.IsNumber())
+	{
+		auto d = value.As<Number>().DoubleValue();
+		XXH3_128bits_update(state, &d, sizeof(d));
+	}
+	else if (value.IsBoolean())
+	{
+		int b = value.As<Boolean>() ? 0x31 : 0x92;
+		XXH3_128bits_update(state, &b, sizeof(b));
+	}
+	else if (value.IsString())
+	{
+		auto key = value.As<String>().Utf8Value();
+		XXH3_128bits_update(state, key.c_str(), key.size());
+	}
+	else
+	{
+		throw TypeError::New(value.Env(), "value is not hash-able");
+	}
+}
+
+Value XXH3_128ObjectHasher::Fold(const CallbackInfo& info) {
+	XXH3_128ObjectHasher hash;
+	XXH3_128bits_reset(hash.state);
+	hash.FoldValue(info[0]);
+	return ToCanonicalBuffer(info, XXH3_128bits_digest(hash.state));
+}
+
+void XXH3_128ObjectHasher::Register(Napi::Env env, Object exports) {
+	exports.Set("ObjectHash", Function::New(env, XXH3_128ObjectHasher::Fold));
 }

@@ -74,8 +74,13 @@ export function createXXH3_128(seed?: number | Buffer) {
  * 无状态函数，直接计算结果，仅支持 Buffer 类型参数和输出。
  */
 export const xxHash3_128 = XXHash3_128Core.hash;
+export const hashSum = binding.ObjectHash;
 
-export function hashSum(value: any) {
+/**
+ * 计算一个对象的 Hash，使用 xxHash3_128 算法，返回 base64url 编码的字符串。
+ * 对象可以是
+ */
+export function hashSumJS(value: any) {
 	const hash = createXXH3_128();
 	const seen = new Set<unknown>();
 

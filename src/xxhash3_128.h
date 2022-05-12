@@ -5,6 +5,8 @@
 
 #include <xxhash.h>
 #include <napi.h>
+#include <unordered_set>
+#include <v8.h>
 
 /*
  * 对 XXHash 的最小封装，该类不对应 Node 的 Hash 类型，部分功能将在 JS 层继承实现。
@@ -30,5 +32,19 @@ public:
 	~XXHash3_128();
 
 	// 注册该类到扩展
+	static void Register(Napi::Env env, Napi::Object exports);
+};
+
+class XXH3_128ObjectHasher {
+private:
+	XXH3_state_t* state = XXH3_createState();
+	std::unordered_set<uintptr_t> seen;
+
+	bool CheckSeen(const Napi::Value value);
+	void FoldValue(const Napi::Value value);
+
+	static Napi::Value Fold(const Napi::CallbackInfo& info);
+
+public:
 	static void Register(Napi::Env env, Napi::Object exports);
 };
