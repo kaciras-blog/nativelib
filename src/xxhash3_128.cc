@@ -1,6 +1,4 @@
-﻿#include <node_api.h>
-#include <v8.h>
-#include "xxhash3_128.h"
+﻿#include "xxhash3_128.h"
 
 // 该文件只用到了 napi.h 一个 C++ 库，省掉命名空间也不会导致混乱。
 using namespace Napi;
@@ -139,31 +137,62 @@ Value XXHash3_128::Hash(const CallbackInfo& info) {
 	throw TypeError::New(env, "Seed must be a number or buffer");
 }
 
-// 拿内存地址来做 Hash，性能最高，但这是 v8 内部 API，还是不要用了。
-bool XXH3_128ObjectHasher::CheckSeen(const Value value) {
-	v8::Local<v8::Value> local;
-	napi_value v = value;
-	memcpy(static_cast<void*>(&local), &v, sizeof(v));
+// 拿内存地址来做 Hash，性能更好，但这是 v8 内部 API，还是不要用了。
+//bool XXH3_128ObjectHasher::CheckSeen(const Value value) {
+//	v8::Local<v8::Value> local;
+//	napi_value v = value;
+//	memcpy(static_cast<void*>(&local), &v, sizeof(v));
+//
+//	auto context = v8::Isolate::GetCurrent()->GetCurrentContext();
+//	auto s = *local->ToObject(context).ToLocalChecked();
+//	auto ad = reinterpret_cast<v8::internal::Address*>(s);
+//
+//	if (!seen.emplace(*ad).second) {
+//		XXH3_128bits_update(state, "[Circular]", 10);
+//		return true;
+//	}
+//	return false;
+//}
 
-	auto context = v8::Isolate::GetCurrent()->GetCurrentContext();
-	auto s = *local->ToObject(context).ToLocalChecked();
-	auto ad = reinterpret_cast<v8::internal::Address*>(s);
+XXH3_128ObjectHasher::XXH3_128ObjectHasher(Env env) {
+	XXH3_128bits_reset(state);
 
-	if (!seen.emplace(*ad).second) {
+	auto setClass = env.Global().Get("Set").As<Function>();
+	auto setProto = setClass.Get("prototype").As<Object>();
+
+	seen = setClass.New({});
+	setHas = setProto.Get("has").As<Function>();
+	setAdd = setProto.Get("add").As<Function>();
+}
+
+bool XXH3_128ObjectHasher::CheckSeen(Value value) {
+	bool isSeen = setHas.Call(seen, { value }).As<Boolean>();
+
+	if (isSeen) {
 		XXH3_128bits_update(state, "[Circular]", 10);
-		return true;
 	}
-	return false;
+	else {
+		setAdd.Call(seen, { value });
+	}
+
+	return isSeen;
 }
 
 void XXH3_128ObjectHasher::FoldValue(Value value) {
-	if (value.IsUndefined())
+	if (value.IsString())
 	{
-		XXH3_128bits_update(state, "[Undefined]", 11);
+		auto key = value.As<String>().Utf16Value();
+		XXH3_128bits_update(state, key.c_str(), key.size() * 2);
 	}
-	else if (value.IsNull())
+	else if (value.IsNumber())
 	{
-		XXH3_128bits_update(state, "[Null]", 6);
+		auto d = value.As<Number>().DoubleValue();
+		XXH3_128bits_update(state, &d, sizeof(d));
+	}
+	else if (value.IsBoolean())
+	{
+		int b = value.As<Boolean>() ? 0x4EB6440D : 0xC3C4FF67;
+		XXH3_128bits_update(state, &b, sizeof(b));
 	}
 	else if (value.IsArray())
 	{
@@ -184,34 +213,27 @@ void XXH3_128ObjectHasher::FoldValue(Value value) {
 		}
 		for (const auto& e : value.As<Object>()) {
 			FoldValue(e.second);
-			auto key = e.first.As<String>().Utf8Value();
-			XXH3_128bits_update(state, key.c_str(), key.size());
+			auto key = e.first.As<String>().Utf16Value();
+			XXH3_128bits_update(state, key.c_str(), key.size() * 2);
 		}
 	}
-	else if (value.IsNumber())
+	else if (value.IsUndefined())
 	{
-		auto d = value.As<Number>().DoubleValue();
-		XXH3_128bits_update(state, &d, sizeof(d));
+		XXH3_128bits_update(state, "[Undefined]", 11);
 	}
-	else if (value.IsBoolean())
+	else if (value.IsNull())
 	{
-		int b = value.As<Boolean>() ? 0x31 : 0x92;
-		XXH3_128bits_update(state, &b, sizeof(b));
-	}
-	else if (value.IsString())
-	{
-		auto key = value.As<String>().Utf8Value();
-		XXH3_128bits_update(state, key.c_str(), key.size());
+		XXH3_128bits_update(state, "[Null]", 6);
 	}
 	else
 	{
+		// function, symbol
 		throw TypeError::New(value.Env(), "value is not hash-able");
 	}
 }
 
 Value XXH3_128ObjectHasher::Fold(const CallbackInfo& info) {
-	XXH3_128ObjectHasher hash;
-	XXH3_128bits_reset(hash.state);
+	auto hash = XXH3_128ObjectHasher(info.Env());
 	hash.FoldValue(info[0]);
 	return ToCanonicalBuffer(info, XXH3_128bits_digest(hash.state));
 }
