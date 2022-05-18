@@ -211,9 +211,21 @@ void XXH3_128ObjectHasher::FoldValue(Value value) {
 		if (CheckSeen(value)) {
 			return;
 		}
+		auto obj = value.As<Object>();
+		std::vector<std::pair<std::string, Value>> keys;
+
 		for (const auto& e : value.As<Object>()) {
+			auto key = e.first.As<String>().Utf8Value();
+			keys.push_back(std::make_pair(key, e.second));
+		}
+
+		std::sort(keys.begin(), keys.end(), [](auto& left, auto& right) {
+			return left.first < right.first;
+		});
+
+		for (const auto& e : keys) {
 			FoldValue(e.second);
-			auto key = e.first.As<String>().Utf16Value();
+			auto& key = e.first;
 			XXH3_128bits_update(state, key.c_str(), key.size() * 2);
 		}
 	}

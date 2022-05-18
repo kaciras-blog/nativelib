@@ -127,7 +127,7 @@ describe("hashSum", () => {
 		const cases = [];
 
 		function test_case(value: any, name?: string) {
-			const hash = hashSum(value);
+			const hash = hashSum(value).toString("base64url");
 			cases.push({ value, hash });
 			console.log("%s from:", hash, name || value);
 		}
@@ -171,6 +171,6 @@ describe("hashSum", () => {
 		[{}, {}],
 		[{ a: "1" }, { a: "1" }],
 	])("hashes clash if same properties %#", (a, b) => {
-		expect(hashSum(a)).toBe(hashSum(b));
+		expect(hashSum(a)).toStrictEqual(hashSum(b));
 	});
 });
