@@ -7,12 +7,14 @@ const xxHash = require("../lib");
 const packageJson = require("../package.json");
 const packageLock = yaml.load(readFileSync("../pnpm-lock.yaml", "utf8"));
 
+// 结论：hash-sum 最快，本地实现只略比 JS 快 10%，不值得。
+
 function run(func) {
 	// warm up
-	for (let i = 0; i < 10; i++) func();
+	for (let i = 0; i < 100; i++) func();
 
 	const start = performance.now();
-	for (let i = 0; i < 10; i++) func();
+	for (let i = 0; i < 100; i++) func();
 	const end = performance.now();
 
 	console.log(func.name);
