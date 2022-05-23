@@ -48,7 +48,7 @@ XXHash3_128::XXHash3_128(const CallbackInfo& info) : ObjectWrap<XXHash3_128>(inf
 
 	if (argument.IsUndefined())
 	{
-		// 不用任何参数调用构造方法，在这里也会接收到一个 undefined？
+		// 不用任何参数调用构造方法，在这里会接收到一个 undefined。
 		XXH3_128bits_reset(state);
 	}
 	else if (argument.IsNumber())
@@ -92,10 +92,16 @@ Value XXHash3_128::Update(const CallbackInfo& info) {
 		XXH3_128bits_update(state, buffer.Data(), buffer.Length());
 		return info.This();
 	}
+	else if (input.IsNumber()) 
+	{
+		auto value = input.As<Number>().DoubleValue();
+		XXH3_128bits_update(state, &value, sizeof(value));
+		return info.This();
+	}
 	else
 	{
 		auto env = info.Env();
-		throw TypeError::New(env, "updateBytes() only accept buffer");
+		throw TypeError::New(env, "updateBytes() only accept Buffer and number");
 	}
 }
 
@@ -128,7 +134,7 @@ Value XXHash3_128::Hash(const CallbackInfo& info) {
 
 	if (seed.IsNumber())
 	{
-		auto value = seed.As<Number>().Int32Value();
+		auto value = seed.As<Number>().Int64Value();
 		auto hash = XXH3_128bits_withSeed(input.Data(), input.Length(), value);
 		return ToCanonicalBuffer(info, hash);
 	}
