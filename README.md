@@ -34,9 +34,24 @@ console.log(createXXH3_128().update("xxhash").digest("hex"));
 ```javascript
 const { xxHash3_128 } = require("@kaciras-blog/nativelib");
 
-// base64u 是 Base 64 Encoding with URL and Filename Safe Alphabet
-console.log(xxHash3_128("xxhash", "base64u"));
-// nItDfHjKwAo3YHLiS_300g==
+console.log(xxHash3_128("xxhash", "base64url")); // nItDfHjKwAo3YHLiS_300g
 ```
 
 xxHash 算法非常快，故没有提供异步的版本。
+
+## hashSum
+
+计算一个对象的 Hash，底层使用 xxHash3_128 算法，返回 16 字节的 buffer 对象。该函数可以作为 [hash-sum](https://github.com/bevacqua/hash-sum) 的替代。
+
+```javascript
+const { hashSum } = require("@kaciras-blog/nativelib");
+
+const hash = hashSum({
+	a: 12345,
+	b: null,
+	c: ["foo", "bar"],
+	d: { foo: true },
+});
+
+console.log(hash.toString("base64url")); // n2mK3P2WyGed560H01IaTA
+```

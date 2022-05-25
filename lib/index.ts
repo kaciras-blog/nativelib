@@ -80,8 +80,12 @@ export function createXXH3_128(seed?: Seed) {
 export const xxHash3_128 = XXHash3_128Core.hash;
 
 /**
- * 计算一个对象的 Hash，使用 xxHash3_128 算法，返回 base64url 编码的字符串。
- * 对象可以是
+ * 计算一个对象的 Hash，底层使用 xxHash3_128 算法，支持循环引用。
+ * 输入必须是可序列化的，函数和符号无法计算 Hash 值，对象的原型将被忽略。
+ *
+ * @param value 要计算的对象
+ * @param seed xxHash3_128 的初始种子
+ * @return Buffer 16 字节的 buffer 对象
  */
 export function hashSum(value: any, seed?: Seed) {
 	const hash = createXXH3_128(seed);
@@ -114,8 +118,7 @@ export function hashSum(value: any, seed?: Seed) {
 				seen.set(value, seen.size);
 				foldObject(value);
 			} else {
-				hash.update(id);
-				hash.update(0x4EB6440D);
+				hash.update(0x4E440D + id);
 			}
 		} else if (type === "number") {
 			hash.update(value);
