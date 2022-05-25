@@ -90,6 +90,9 @@ export function hashSum(value: any, seed?: Seed) {
 	return hash.digest();
 
 	function foldObject(obj: any) {
+		if (Array.isArray(value)) {
+			hash.update(0x66FE3A9268);
+		}
 		for (const key of Object.keys(obj).sort()) {
 			hash.update(key);
 			foldValue(obj[key]);

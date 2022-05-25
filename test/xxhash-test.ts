@@ -8,8 +8,8 @@ const SECRET = Buffer.from(
 	" It is proposed in four flavors (XXH32, XXH64, XXH3_64bits and XXH3_128bits)",
 );
 
-const invalidSeeds: any[] = [null, "string", {}, true];
-const invalidInputs: any[] = [undefined, null, {}, 123456, true];
+const invalidSeeds: any[] = [null, "string", {}, [], xxHash3_128, true];
+const invalidInputs: any[] = [undefined, null, {}, [], xxHash3_128, true];
 
 const data = [
 	["xxhash", "9c8b437c78cac00a376072e24bfdf4d2"],
@@ -122,55 +122,55 @@ describe("xxHash3_128", () => {
 });
 
 describe("hashSum", () => {
+	const uniqueHashes = new Set<string>();
+	const obj1 = ["foo"];
+	const obj2 = ["bar"];
 
-	test("creates unique hashes", () => {
-		const cases = [];
-
-		function test_case(value: any, name?: string) {
-			const hash = hashSum(value).toString("base64url");
-			cases.push({ value, hash });
-			console.log("%s from:", hash, name || value);
-		}
-
-		test_case([0, 1, 2, 3]);
-		test_case({ 0: 0, 1: 1, 2: 2, 3: 3 });
-		test_case({ 0: 0, 1: 1, 2: 2, 3: 3, length: 4 });
-		test_case({ url: 12 });
-		test_case({ headers: 12 });
-		test_case({ headers: 122 });
-		test_case({ headers: "122" });
-		test_case({ headers: { accept: "text/plain" } });
-		test_case({ payload: [0, 1, 2, 3], headers: [{ a: "b" }] });
-		test_case("", "''");
-		test_case("null", "'null'");
-		test_case("false", "'false'");
-		test_case("true", "'true'");
-		test_case("0", "'0'");
-		test_case("1", "'1'");
-		test_case("void 0", "'void 0'");
-		test_case("undefined", "'undefined'");
-		test_case(null);
-		test_case(false);
-		test_case(true);
-		test_case(Infinity);
-		test_case(-Infinity);
-		test_case(NaN);
-		test_case(0);
-		test_case(1);
-		test_case(void 0);
-		test_case({});
-		test_case({ a: {}, b: {} });
-		test_case([]);
-		test_case(new Date());
-		test_case(new Date(2019, 5, 28));
-		test_case(new Date(1988, 5, 9));
+	test.each([
+		[0, 1, 2, 3],
+		{ 0: 0, 1: 1, 2: 2, 3: 3 },
+		{ 0: 0, 1: 1, 2: 2, 3: 3, length: 4 },
+		{ url: 12 },
+		{ headers: 12 },
+		{ headers: 122 },
+		{ headers: "122" },
+		{ headers: { accept: "text/plain" } },
+		{ payload: [0, 1, 2, 3], headers: [{ a: "b" }] },
+		"", "''",
+		"null", "'null'",
+		"false", "'false'",
+		"true", "'true'",
+		"0", "'0'",
+		"1", "'1'",
+		"void 0", "'void 0'",
+		"undefined", "'undefined'",
+		null,
+		false,
+		true,
+		Infinity,
+		-Infinity,
+		NaN,
+		0,
+		1,
+		void 0,
+		{ a: obj1, b: obj2, c: obj1 },
+		{ a: obj1, b: obj2, c: obj2 },
+		{},
+		[],
+		[{}],
+		{ a: {}, b: {} },
+	])("creates unique hashes %#", value => {
+		const hash = hashSum(value).toString("base64url");
+		expect(uniqueHashes).not.toContain(hash);
+		uniqueHashes.add(hash);
 	});
 
 	test.each([
 		[{ a: "1", b: 2 }, { b: 2, a: "1" }],
-		[{}, {}],
+		[{}, Object.create(null)],
 		[{ a: "1" }, { a: "1" }],
 	])("hashes clash if same properties %#", (a, b) => {
 		expect(hashSum(a)).toStrictEqual(hashSum(b));
 	});
 });
+
