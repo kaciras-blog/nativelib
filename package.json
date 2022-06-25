@@ -34,11 +34,11 @@
 		"@kaciras/eslint-config-core": "^2.4.1",
 		"@kaciras/eslint-config-jest": "^2.4.1",
 		"@kaciras/eslint-config-typescript": "^2.4.1",
-		"@types/jest": "^28.1.1",
+		"@types/jest": "^28.1.3",
 		"@types/node": "^18.0.0",
-		"eslint": "^8.17.0",
+		"eslint": "^8.18.0",
 		"jest": "^28.1.1",
 		"ts-jest": "^28.0.5",
-		"typescript": "^4.7.3"
+		"typescript": "^4.7.4"
 	}
 }
