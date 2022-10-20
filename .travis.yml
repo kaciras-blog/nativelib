@@ -31,10 +31,10 @@ _job_linux: &job_linux
 jobs:
   include:
     - <<: *job_windows
-      node_js: 18
+      node_js: 19
 
     - <<: *job_linux
-      node_js: 18
+      node_js: 19
 
 install:
   - npm install -g pnpm node-gyp
