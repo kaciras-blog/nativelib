@@ -1,4 +1,4 @@
-import { createXXH3_128, hashSum, xxHash3_128 } from "../lib";
+import { createXXH3_128, xxHash3_128 } from "../lib";
 
 const EMPTY = Buffer.alloc(0);
 const SEED = 1048573;
@@ -120,57 +120,3 @@ describe("xxHash3_128", () => {
 		expect(digest.toString("hex")).toStrictEqual(expected);
 	});
 });
-
-describe("hashSum", () => {
-	const uniqueHashes = new Set<string>();
-	const obj1 = ["foo"];
-	const obj2 = ["bar"];
-
-	test.each([
-		[0, 1, 2, 3],
-		{ 0: 0, 1: 1, 2: 2, 3: 3 },
-		{ 0: 0, 1: 1, 2: 2, 3: 3, length: 4 },
-		{ url: 12 },
-		{ headers: 12 },
-		{ headers: 122 },
-		{ headers: "122" },
-		{ headers: { accept: "text/plain" } },
-		{ payload: [0, 1, 2, 3], headers: [{ a: "b" }] },
-		"", "''",
-		"null", "'null'",
-		"false", "'false'",
-		"true", "'true'",
-		"0", "'0'",
-		"1", "'1'",
-		"void 0", "'void 0'",
-		"undefined", "'undefined'",
-		null,
-		false,
-		true,
-		Infinity,
-		-Infinity,
-		NaN,
-		0,
-		1,
-		void 0,
-		{ a: obj1, b: obj2, c: obj1 },
-		{ a: obj1, b: obj2, c: obj2 },
-		{},
-		[],
-		[{}],
-		{ a: {}, b: {} },
-	])("creates unique hashes %#", value => {
-		const hash = hashSum(value).toString("base64url");
-		expect(uniqueHashes).not.toContain(hash);
-		uniqueHashes.add(hash);
-	});
-
-	test.each([
-		[{ a: "1", b: 2 }, { b: 2, a: "1" }],
-		[{}, Object.create(null)],
-		[{ a: "1" }, { a: "1" }],
-	])("hashes clash if same properties %#", (a, b) => {
-		expect(hashSum(a)).toStrictEqual(hashSum(b));
-	});
-});
-
