@@ -36,6 +36,6 @@ jobs:
 
       - run: node-gyp rebuild
 
-      - run: pnpm test -- --coverage
+      - run: pnpm run test:coverage
 
       - uses: codecov/codecov-action@v3
