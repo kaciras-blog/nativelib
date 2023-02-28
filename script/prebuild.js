@@ -8,9 +8,9 @@
  */
 const { execSync } = require("child_process");
 const { join } = require("path");
-const fs = require("fs");
+const { rmSync, mkdirSync, createWriteStream } = require("fs");
+const { Readable } = require("stream");
 const { createBrotliCompress, createBrotliDecompress } = require("zlib");
-const { https } = require("follow-redirects");
 const tar = require("tar-fs");
 const packageJson = require("../package.json");
 
@@ -45,8 +45,8 @@ function getGithubRelease() {
  * 注意本命令只打包，不负责编译和上传，这两个步骤需要 CI 来完成。
  */
 function pack() {
-	fs.rmSync("prebuilds", { recursive: true, force: true });
-	fs.mkdirSync("prebuilds");
+	rmSync("prebuilds", { recursive: true, force: true });
+	mkdirSync("prebuilds");
 
 	const pack = tar.pack(".", {
 		entries: ["build/Release/nativelib.node"],
@@ -55,39 +55,41 @@ function pack() {
 	const file = `prebuilds/${getPackageName()}`;
 	console.log(`Packing files to ${file}`);
 
-	pack.pipe(createBrotliCompress()).pipe(fs.createWriteStream(file));
+	pack.pipe(createBrotliCompress()).pipe(createWriteStream(file));
 }
 
 /**
  * 从 GitHub Release 上下载预编译好的文件并解压。
  * 如果下载失败或没有预构建，则尝试编译。
  */
-function download() {
+async function download() {
 	const url = `${getGithubRelease()}/${getPackageName()}`;
-	const request = https.get(url);
+	let response;
 
-	request.on("response", response => {
-		const { statusCode } = response;
+	try {
+		response = await fetch(url);
+	} catch (e) {
+		return handleInstallError(e);
+	}
 
-		if (statusCode === 404) {
+	switch (response.status) {
+		case 404:
 			return handleInstallError(`没有合适的预编译文件：${url}`);
-		} else if (statusCode !== 200) {
-			return handleInstallError(`下载失败（${statusCode}）：${url}`);
-		}
+		case 200:
+			return Readable
+				.fromWeb(response.body)
+				.pipe(createBrotliDecompress())
+				.pipe(tar.extract("."));
+	}
 
-		response
-			.pipe(createBrotliDecompress())
-			.pipe(tar.extract("."));
-	});
-
-	request.on("error", handleInstallError).end();
+	handleInstallError(`下载失败（${response.status}）：${url}`);
 }
 
 function handleInstallError(error) {
 	console.warn(error);
+	const cmd = "node-gyp rebuild --ensure";
 
 	try {
-		const cmd = "node-gyp rebuild --ensure";
 		execSync(cmd, { stdio: "inherit" });
 	} catch (e) {
 		process.exit(e.status);
