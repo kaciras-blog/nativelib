@@ -30,18 +30,12 @@ jobs:
       - name: Install Node deps
         run: |
           npm i -g pnpm node-gyp
-
-      - run: pnpm install
+          pnpm install
         env:
           NO_PREBUILD: true
 
-      - name: Build Addon
-        run: node-gyp rebuild
+      - run: node-gyp rebuild
 
-      # worker_threads needs js output
-      - name: Test
-        run: |
-          pnpm run compile:ts
-          pnpm run test:coverage
+      - run: pnpm test -- --coverage
 
       - uses: codecov/codecov-action@v3
