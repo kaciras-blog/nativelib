@@ -7,7 +7,6 @@ specifiers:
   '@types/jest': ^29.4.0
   '@types/node': ^18.14.2
   eslint: ^8.35.0
-  follow-redirects: ^1.15.2
   jest: ^29.4.3
   node-addon-api: ^6.0.0
   tar-fs: ^2.1.1
@@ -15,7 +14,6 @@ specifiers:
   typescript: ^4.9.5
 
 dependencies:
-  follow-redirects: 1.15.2
   node-addon-api: 6.0.0
   tar-fs: 2.1.1
 
@@ -1715,16 +1713,6 @@ packages:
   /flatted/3.2.7:
     resolution: {integrity: sha512-5nqDSxl8nn5BSNxyR3n4I6eDmbolI6WT+QqR547RwxQapgjQBmtktdP+HTBb/a/zLsbzERTONyUB5pefh5TtjQ==}
     dev: true
-
-  /follow-redirects/1.15.2:
-    resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    dev: false
 
   /fs-constants/1.0.0:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
