@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/kaciras-blog/nativelib.svg?branch=master)](https://travis-ci.org/kaciras-blog/nativelib)
-
 [![codecov](https://codecov.io/gh/kaciras-blog/nativelib/branch/master/graph/badge.svg?token=XBI5620UXW)](https://codecov.io/gh/kaciras-blog/nativelib)
 
 Kaciras 博客的 Node 本地扩展，包含了一些需要在底层实现的功能。
