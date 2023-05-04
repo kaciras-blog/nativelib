@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v3
         with:
-          node-version: 19
+          node-version: latest
 
       - uses: actions/setup-python@v3
         with:
