@@ -3,7 +3,7 @@ module.exports = {
 		"**/test/*-test.ts",
 	],
 	moduleFileExtensions: [
-		"ts", "js", "mjs", "json",
+		"ts", "js", "json",
 	],
 	preset: "ts-jest",
 	clearMocks: true,
