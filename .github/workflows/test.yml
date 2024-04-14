@@ -11,7 +11,10 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      # Use preinstalled Node from image.
+      # 用了 import.meta.dirname 需要最新的 Node
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
 
       - uses: actions/setup-python@v4
         with:
