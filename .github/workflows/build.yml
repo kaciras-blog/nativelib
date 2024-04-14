@@ -14,18 +14,18 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: latest
 
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Cache .pnpm-store
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -43,7 +43,7 @@ jobs:
         run: node script/prebuild.js pack
 
       - name: Upload prebuild binary
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: prebuilds/*
         env:
