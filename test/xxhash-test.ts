@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { createXXH3_128, xxHash3_128 } from "../lib/index.js";
+import { createXXH3_128, xxHash3_128 } from "../lib/index.ts";
 
 const EMPTY = Buffer.alloc(0);
 const SEED = 1048573;
