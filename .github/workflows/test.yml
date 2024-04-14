@@ -38,5 +38,7 @@ jobs:
       - run: node-gyp rebuild
 
       - run: pnpm run test:coverage
+        env:
+          NODE_OPTIONS: --experimental-vm-modules
 
       - uses: codecov/codecov-action@v4
