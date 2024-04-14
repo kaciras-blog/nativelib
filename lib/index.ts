@@ -1,6 +1,7 @@
 import { BinaryToTextEncoding, Encoding } from "crypto";
+import { createRequire } from "module";
 
-const binding = require("../build/Release/nativelib.node");
+const binding = createRequire(import.meta.url)("../build/Release/nativelib.node");
 
 // 扩展的类型定义不是很好办，只能这样搞个变量然后设类型。
 const XXHash3_128Core = binding.XXHash3_128Core as typeof XXHash3_128CoreType;

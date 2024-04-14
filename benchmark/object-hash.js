@@ -1,10 +1,10 @@
-const { readFileSync } = require("fs");
-const { performance } = require("perf_hooks");
-const yaml = require("js-yaml");
-const hashSum = require("hash-sum");
+import { readFileSync } from "fs";
+import { performance } from "perf_hooks";
+import yaml from "js-yaml";
+import hashSum from "hash-sum";
 
-// const xxHash = require("../lib");
-// const packageJson = require("../package.json");
+// import xxHash from "../lib";
+// import packageJson from "../package.json";
 const packageLock = yaml.load(readFileSync("../pnpm-lock.yaml", "utf8"));
 
 export function hashSumMyImpl(value) {

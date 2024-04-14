@@ -2,7 +2,7 @@
 	"files": ["lib/index.ts"],
 	"compilerOptions": {
 		"target": "ESNext",
-		"module": "CommonJS",
+		"module": "ESNext",
 		"moduleResolution": "Node",
 		"lib": [
 			"ESNext"

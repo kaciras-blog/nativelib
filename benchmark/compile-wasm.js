@@ -5,10 +5,10 @@
  * node script/compile-wasm.js [-release] [-safe-heap]
  * 默认会使用调试模式编译。
  */
-const { execSync } = require("child_process");
-const { join } = require("path");
+import { execSync } from "child_process";
+import { dirname } from "path";
 
-process.chdir(join(__dirname, ".."));
+process.chdir(dirname(import.meta.dirname));
 
 const ARGS = [
 	"-o build/wasm.js",

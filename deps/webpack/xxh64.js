@@ -3,8 +3,6 @@
 	Author Tobias Koppers @sokra
  */
 
-"use strict";
-
 //#region wasm code: xxhash64 (../../../assembly/hash/xxhash64.asm.ts) --initialMemory 1
 const xxhash64 = new WebAssembly.Module(
 	Buffer.from(
@@ -141,7 +139,7 @@ class XxHash64 {
 
 const instancesPool = [];
 
-const create = () => {
+export default function create () {
 	if (instancesPool.length > 0) {
 		const old = instancesPool.pop();
 		old.reset();
@@ -150,5 +148,3 @@ const create = () => {
 		return new XxHash64(new WebAssembly.Instance(xxhash64));
 	}
 };
-
-module.exports = create;

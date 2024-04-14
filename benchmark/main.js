@@ -1,10 +1,10 @@
-const { performance } = require("perf_hooks");
-const crypto = require("crypto");
-const xxhashjs = require("xxhashjs");
-const { murmurHash128x64 } = require("murmurhash-native");
-const webpackImpl = require("../deps/webpack/xxh64");
-const nativelib = require("../lib");
-const wasm = require("../build/wasm");
+import { performance } from "perf_hooks";
+import crypto from "crypto";
+import xxhashjs from "xxhashjs";
+import { murmurHash128x64 } from "murmurhash-native";
+import webpackImpl from "../deps/webpack/xxh64.js";
+import nativelib from "../lib/index.js";
+import wasm from "../build/wasm.js";
 
 function wasmImpl(buffer) {
 	const pInput = wasm._createBuffer(buffer.length);

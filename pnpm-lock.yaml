@@ -13,6 +13,9 @@ dependencies:
     version: 3.0.5
 
 devDependencies:
+  '@jest/globals':
+    specifier: ^29.7.0
+    version: 29.7.0
   '@kaciras/eslint-config-core':
     specifier: ^3.0.1
     version: 3.0.1(eslint@9.0.0)
@@ -22,9 +25,6 @@ devDependencies:
   '@kaciras/eslint-config-typescript':
     specifier: ^3.0.1
     version: 3.0.1(eslint@9.0.0)(typescript@5.4.5)
-  '@types/jest':
-    specifier: ^29.5.12
-    version: 29.5.12
   '@types/node':
     specifier: ^20.12.7
     version: 20.12.7
@@ -857,13 +857,6 @@ packages:
     resolution: {integrity: sha512-pk2B1NWalF9toCRu6gjBzR69syFjP4Od8WRAX+0mmf9lAjCRicLOWc+ZrxZHx/0XRjotgkF9t6iaMJ+aXcOdZQ==}
     dependencies:
       '@types/istanbul-lib-report': 3.0.3
-    dev: true
-
-  /@types/jest@29.5.12:
-    resolution: {integrity: sha512-eDC8bTvT/QhYdxJAulQikueigY5AsdBRH2yDKW3yveW7svY3+DzN84/2NUgkw10RTiJbWqZrTtoGVdYlvFJdLw==}
-    dependencies:
-      expect: 29.7.0
-      pretty-format: 29.7.0
     dev: true
 
   /@types/json-schema@7.0.15:

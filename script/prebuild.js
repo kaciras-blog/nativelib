@@ -6,16 +6,16 @@
  * 2）prebuild 不支持压缩率更高的 brotli 算法。
  * 3）通过与 CI 整合，使得实现非常简单，prebuild 功能太多反而不好用。
  */
-const { execSync } = require("child_process");
-const { join } = require("path");
-const { rmSync, mkdirSync, createWriteStream } = require("fs");
-const { Readable } = require("stream");
-const { createBrotliCompress, createBrotliDecompress } = require("zlib");
-const tar = require("tar-fs");
-const packageJson = require("../package.json");
+import { execSync } from "child_process";
+import { dirname } from "path";
+import { createWriteStream, mkdirSync, rmSync } from "fs";
+import { Readable } from "stream";
+import { createBrotliCompress, createBrotliDecompress } from "zlib";
+import tar from "tar-fs";
+import packageJson from "../package.json" with { type: "json" };
 
 // 定死工作目录为项目根目录，免得老是去组装路径
-process.chdir(join(__dirname, ".."));
+process.chdir(dirname(import.meta.dirname));
 
 /**
  * 获取当前环境下的压缩包名，跟 prebuild 的一致。

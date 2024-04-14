@@ -1,4 +1,5 @@
-import { createXXH3_128, xxHash3_128 } from "../lib";
+import { describe, expect, it } from "@jest/globals";
+import { createXXH3_128, xxHash3_128 } from "../lib/index.js";
 
 const EMPTY = Buffer.alloc(0);
 const SEED = 1048573;
@@ -32,7 +33,7 @@ describe("createXXH3_128", () => {
 		expect(() => createXXH3_128(EMPTY)).toThrow();
 	});
 
-	test.each(invalidSeeds)("should throw error on invalid seed %#", (seed) => {
+	it.each(invalidSeeds)("should throw error on invalid seed %#", (seed) => {
 		expect(() => createXXH3_128(seed)).toThrow();
 	});
 
@@ -41,7 +42,7 @@ describe("createXXH3_128", () => {
 		expect(() => createXXH3_128().update()).toThrow();
 	});
 
-	test.each(invalidInputs)("should throw on update with %s", data => {
+	it.each(invalidInputs)("should throw on update with %s", data => {
 		expect(() => createXXH3_128().update(data)).toThrow();
 	});
 
@@ -61,7 +62,7 @@ describe("createXXH3_128", () => {
 		expect(hash.digest()).not.toStrictEqual(copy.digest());
 	});
 
-	test.each(data)("digest - %#", (input, expected) => {
+	it.each(data)("digest - %#", (input, expected) => {
 		const digest = createXXH3_128()
 			.update(input)
 			.digest("hex");
@@ -69,7 +70,7 @@ describe("createXXH3_128", () => {
 		expect(digest).toStrictEqual(expected);
 	});
 
-	test.each(data)("digest buffer - %#", (input, expected) => {
+	it.each(data)("digest buffer - %#", (input, expected) => {
 		const digest = createXXH3_128()
 			.update(Buffer.from(input))
 			.digest("hex");
@@ -77,7 +78,7 @@ describe("createXXH3_128", () => {
 		expect(digest).toStrictEqual(expected);
 	});
 
-	test.each(dataWithSeed)("digest with seed - %#", (input, expected) => {
+	it.each(dataWithSeed)("digest with seed - %#", (input, expected) => {
 		const digest = createXXH3_128(SEED)
 			.update(input)
 			.digest("hex");
@@ -85,7 +86,7 @@ describe("createXXH3_128", () => {
 		expect(digest).toStrictEqual(expected);
 	});
 
-	test.each(dataWithSecret)("digest with secret - %#", (input, expected) => {
+	it.each(dataWithSecret)("digest with secret - %#", (input, expected) => {
 		const digest = createXXH3_128(SECRET)
 			.update(input)
 			.digest("hex");
@@ -101,21 +102,21 @@ describe("xxHash3_128", () => {
 		expect(() => xxHash3_128()).toThrow();
 	});
 
-	test.each(invalidSeeds)("should throw error on invalid seed %#", (seed) => {
+	it.each(invalidSeeds)("should throw error on invalid seed %#", (seed) => {
 		expect(() => xxHash3_128(EMPTY, seed)).toThrow();
 	});
 
-	test.each(data)("digest buffer - %#", (input, expected) => {
+	it.each(data)("digest buffer - %#", (input, expected) => {
 		const digest = xxHash3_128(Buffer.from(input));
 		expect(digest.toString("hex")).toStrictEqual(expected);
 	});
 
-	test.each(dataWithSeed)("digest with seed - %#", (input, expected) => {
+	it.each(dataWithSeed)("digest with seed - %#", (input, expected) => {
 		const digest = xxHash3_128(Buffer.from(input), SEED);
 		expect(digest.toString("hex")).toStrictEqual(expected);
 	});
 
-	test.each(dataWithSecret)("digest with secret - %#", (input, expected) => {
+	it.each(dataWithSecret)("digest with secret - %#", (input, expected) => {
 		const digest = xxHash3_128(Buffer.from(input), SECRET);
 		expect(digest.toString("hex")).toStrictEqual(expected);
 	});
