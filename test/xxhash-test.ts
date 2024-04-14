@@ -38,7 +38,7 @@ describe("createXXH3_128", () => {
 	});
 
 	it("should throw error on update without data", () => {
-		// @ts-ignore Test for invalid call
+		// @ts-expect-error
 		expect(() => createXXH3_128().update()).toThrow();
 	});
 
@@ -98,7 +98,7 @@ describe("createXXH3_128", () => {
 describe("xxHash3_128", () => {
 
 	it("should throw error on digest without data", () => {
-		// @ts-ignore Test for invalid call
+		// @ts-expect-error
 		expect(() => xxHash3_128()).toThrow();
 	});
 

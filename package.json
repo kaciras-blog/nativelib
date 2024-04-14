@@ -3,17 +3,17 @@
 	"version": "0.4.0",
 	"description": "Node addon for Kaciras Blog",
 	"license": "MIT",
-	"author": "Kaciras <Kaciras@protonmail.com>",
+	"author": "Kaciras <Kaciras@outlook.com>",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/kaciras-blog/nativelib"
 	},
-	"type": "module",
-	"main": "lib/index.js",
-	"types": "lib/index.d.ts",
 	"engines": {
 		"node": ">=19"
 	},
+	"type": "module",
+	"main": "lib/index.js",
+	"types": "lib/index.d.ts",
 	"files": [
 		"script/**",
 		"src/**",
