@@ -1,6 +1,0 @@
-/build
-/deps
-/coverage
-
-/test/*.js
-/lib/*.js
