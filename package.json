@@ -36,8 +36,8 @@
 		"@kaciras/eslint-config-core": "^3.3.0",
 		"@kaciras/eslint-config-jest": "^3.3.0",
 		"@kaciras/eslint-config-typescript": "^3.3.0",
-		"@types/node": "^22.13.10",
-		"eslint": "^9.22.0",
+		"@types/node": "^22.13.11",
+		"eslint": "^9.23.0",
 		"jest": "^29.7.0",
 		"ts-jest": "^29.2.6",
 		"typescript": "^5.8.2"
