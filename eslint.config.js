@@ -8,4 +8,4 @@ export default [
 	...core,
 	...typescript,
 	...jest.map(config => ({ ...config, files: jestConfig.testMatch })),
-]
+];
