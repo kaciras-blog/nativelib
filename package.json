@@ -29,17 +29,17 @@
 	},
 	"dependencies": {
 		"node-addon-api": "^8.3.1",
-		"tar-fs": "^3.0.8"
+		"tar-fs": "^3.0.9"
 	},
 	"devDependencies": {
 		"@jest/globals": "^29.7.0",
 		"@kaciras/eslint-config-core": "^3.3.0",
 		"@kaciras/eslint-config-jest": "^3.3.0",
 		"@kaciras/eslint-config-typescript": "^3.3.0",
-		"@types/node": "^22.14.1",
-		"eslint": "^9.24.0",
+		"@types/node": "^22.15.21",
+		"eslint": "^9.27.0",
 		"jest": "^29.7.0",
-		"ts-jest": "^29.3.2",
+		"ts-jest": "^29.3.4",
 		"typescript": "^5.8.3"
 	}
 }
